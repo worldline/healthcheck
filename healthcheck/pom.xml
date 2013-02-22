@@ -1,0 +1,114 @@
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.atos.xa.healthcheck</groupId>
+	<artifactId>healthcheck-parent</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>healthcheck</name>
+
+	<modules>
+		<module>healthcheck-core</module>
+		<module>healthcheck-openejb</module>
+    	<module>healthcheck-servlet</module>
+	</modules>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.yammer.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+		</dependency>
+
+	</dependencies>
+
+
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<groupId>com.yammer.metrics</groupId>
+				<artifactId>metrics-core</artifactId>
+				<version>${metrics.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.yammer.metrics</groupId>
+				<artifactId>metrics-servlet</artifactId>
+				<version>${metrics.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+				<scope>provided</scope>
+			</dependency>
+
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+
+
+		</dependencies>
+	</dependencyManagement>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+					<optimize>true</optimize>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.7.2</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<reporting />
+
+	<repositories>
+
+		<!-- This repository is only needed when the Tapestry version is a preview 
+			release, rather than a final release. -->
+		<repository>
+			<id>apache-staging</id>
+			<url>https://repository.apache.org/content/groups/staging/</url>
+		</repository>
+		<repository>
+			<!-- This repository is mapped to a Maven2 proxy. This one gives access 
+				to O&D and common Maven2 repositories -->
+			<id>proxiedRepositories</id>
+			<name>OD and common proxied repositories</name>
+			<url>http://repository.atosworldline.com/nexus/content/groups/public</url>
+		</repository>
+	</repositories>
+
+
+	<properties>
+		<metrics.version>2.2.0</metrics.version>
+	</properties>
+
+</project>
