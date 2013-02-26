@@ -13,7 +13,7 @@ import com.yammer.metrics.core.HealthCheck;
 
 public class DatabaseCheck extends HealthCheck {
 
-	/** the logger (use the same logging mechanism as the activiti framework */
+	/** the logger */
 	private static Logger log = Logger.getLogger(DatabaseCheck.class.getName());
 
 	private DataSource dataSource;
@@ -22,7 +22,7 @@ public class DatabaseCheck extends HealthCheck {
 
 	public DatabaseCheck(String name, DataSource dataSource,
 			String validationQuery, int validationQueryTimeout) {
-		super(name);
+		super("databaseCheck " + name);
 		this.dataSource = dataSource;
 		this.validatinQuery = validationQuery;
 		this.validationQueryTimeout = validationQueryTimeout;
@@ -32,7 +32,7 @@ public class DatabaseCheck extends HealthCheck {
 	protected Result check() throws Exception {
 
 		if (dataSource == null)
-			return Result.healthy();
+			return Result.unhealthy("no datasource provided");
 
 		Connection connection = null;
 		PreparedStatement stmt = null;
@@ -50,12 +50,13 @@ public class DatabaseCheck extends HealthCheck {
 			if (validationQueryTimeout > 0) {
 				stmt.setQueryTimeout(validationQueryTimeout);
 			}
+
 			rs = stmt.executeQuery();
 
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "Cannot access database", e);
 
-			Result.unhealthy("Cannot connect to " + getName(), e);
+			return Result.unhealthy("Cannot connect to " + getName(), e);
 		} finally {
 			if (connection != null) {
 				try {
