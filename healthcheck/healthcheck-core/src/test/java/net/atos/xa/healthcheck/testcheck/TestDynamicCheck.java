@@ -3,11 +3,11 @@ package net.atos.xa.healthcheck.testcheck;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.xa.healthcheck.spi.DynamicHealthCheck;
+import net.atos.xa.healthcheck.spi.HealthCheckFactory;
 
 import com.yammer.metrics.core.HealthCheck;
 
-public class TestDynamicCheck implements DynamicHealthCheck {
+public class TestDynamicCheck implements HealthCheckFactory {
 
 	public List<HealthCheck> getHealthChecks() {
 

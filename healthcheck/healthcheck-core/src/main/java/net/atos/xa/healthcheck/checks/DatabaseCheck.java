@@ -4,32 +4,39 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.yammer.metrics.core.HealthCheck;
 
 public class DatabaseCheck extends HealthCheck {
 
 	/** the logger */
-	private static Logger log = Logger.getLogger(DatabaseCheck.class.getName());
+	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
+			.getName());
 
 	private DataSource dataSource;
-	private String validatinQuery;
+	private String validationQuery;
 	private int validationQueryTimeout;
 
 	public DatabaseCheck(String name, DataSource dataSource,
 			String validationQuery, int validationQueryTimeout) {
 		super("databaseCheck " + name);
 		this.dataSource = dataSource;
-		this.validatinQuery = validationQuery;
+		if (validationQuery != null)
+			this.validationQuery = validationQuery;
+		else
+			this.validationQuery = "select 1 from dual";
 		this.validationQueryTimeout = validationQueryTimeout;
 	}
 
 	@Override
 	protected Result check() throws Exception {
+
+		log.info("[HealthCheck] execute check {}", getName());
 
 		if (dataSource == null)
 			return Result.unhealthy("no datasource provided");
@@ -40,12 +47,13 @@ public class DatabaseCheck extends HealthCheck {
 
 		try {
 			connection = dataSource.getConnection();
-			if (validatinQuery != null)
-				stmt = connection.prepareStatement(validatinQuery);
-			else
-				// TODO determine the database used and run a correct validation
-				// query
-				stmt = connection.prepareStatement("select 1 from dual");
+
+			log.info(
+					"[HealthCheck] execute validationQuery {} on database {} with timeout {}",
+					validationQuery, connection.getMetaData().getURL(),
+					validationQueryTimeout);
+
+			stmt = connection.prepareStatement(validationQuery);
 
 			if (validationQueryTimeout > 0) {
 				stmt.setQueryTimeout(validationQueryTimeout);
@@ -54,7 +62,7 @@ public class DatabaseCheck extends HealthCheck {
 			rs = stmt.executeQuery();
 
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "Cannot access database", e);
+			log.error("Cannot access database", e);
 
 			return Result.unhealthy("Cannot connect to " + getName(), e);
 		} finally {
@@ -62,24 +70,26 @@ public class DatabaseCheck extends HealthCheck {
 				try {
 					connection.close();
 				} catch (Exception e) {
-					// no-op
+					log.error("Cannot close database connection", e);
 				}
 			}
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (Exception e) {
-					// no-op
+					log.error("Cannot close statement", e);
 				}
 			}
 			if (rs != null) {
 				try {
 					rs.close();
 				} catch (Exception e) {
-					// no-op
+					log.error("Cannot close result set", e);
 				}
 			}
 		}
+
+		log.info("[HealthCheck] check {} is OK", getName());
 
 		return Result.healthy();
 

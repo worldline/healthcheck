@@ -7,6 +7,9 @@ import java.util.StringTokenizer;
 
 import net.atos.xa.healthcheck.HealthCheckLocator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.yammer.metrics.HealthChecks;
 import com.yammer.metrics.core.HealthCheck;
 
@@ -24,6 +27,11 @@ import com.yammer.metrics.core.HealthCheck;
  * 
  */
 public class RegisterHealthCheck {
+
+	/** the logger */
+	private static Logger log = LoggerFactory
+			.getLogger(RegisterHealthCheck.class.getName());
+
 	/**
 	 * get a list of healthcheck <br/>
 	 * 
@@ -66,6 +74,8 @@ public class RegisterHealthCheck {
 	public static void registerHealthChecks(Collection<HealthCheck> healthChecks) {
 		if (healthChecks != null) {
 			for (HealthCheck healthCheck : healthChecks) {
+				log.debug("[HealthCheck] register a check {} (classname : {})",
+						healthCheck.getName(), healthCheck.getClass());
 				HealthChecks.register(healthCheck);
 			}
 		}

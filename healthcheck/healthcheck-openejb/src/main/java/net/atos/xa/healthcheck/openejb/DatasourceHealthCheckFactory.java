@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -13,25 +11,27 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import net.atos.xa.healthcheck.checks.DatabaseCheck;
-import net.atos.xa.healthcheck.spi.DynamicHealthCheck;
+import net.atos.xa.healthcheck.openejb.util.JNDIUtil;
+import net.atos.xa.healthcheck.spi.HealthCheckFactory;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.spi.ContainerSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.yammer.metrics.core.HealthCheck;
 
 /**
- * Implementation of {@link DynamicHealthCheck} for checking OpenEJB /TomEE
+ * Implementation of {@link HealthCheckFactory} for checking OpenEJB /TomEE
  * datasources This implementation browses the JNDI tree by looking for
  * Datasource entries. For each datasource entry, a {@link DatabaseCheck} is
  * created
  * 
  */
-public class DatasourceDynamicHealthCheck implements DynamicHealthCheck {
+public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 	/** the logger */
-	private static Logger log = Logger.getLogger(DatabaseCheck.class.getName());
+	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
+			.getName());
 
 	private static final String ROOT = "";
 
@@ -40,9 +40,16 @@ public class DatasourceDynamicHealthCheck implements DynamicHealthCheck {
 	 */
 	public List<HealthCheck> getHealthChecks() {
 
-		return getHealthChecks(
-				SystemInstance.get().getComponent(ContainerSystem.class)
-						.getJNDIContext(), null);
+		if (log.isDebugEnabled()) {
+			log.debug("[HealthCheck] datasource healthcheck factory ");
+			StringBuffer buffer = new StringBuffer();
+			log.debug("Jndi Tree");
+			JNDIUtil.appendJndiTreeToBuffer(buffer,
+					JNDIUtil.getOpenEjbRootContext(), null);
+			log.debug(buffer.toString());
+		}
+
+		return getHealthChecks(JNDIUtil.getOpenEjbRootContext(), null);
 	}
 
 	private List<HealthCheck> getHealthChecks(Context context, String prefix) {
@@ -67,17 +74,19 @@ public class DatasourceDynamicHealthCheck implements DynamicHealthCheck {
 						result.addAll(healthChecks);
 					}
 
-				} else if (obj instanceof BasicDataSource) {
+				} else if (BasicDataSource.class.isInstance(obj)) {
+
+					log.debug("Add datasource checker for : {}",
+							current.getName());
 
 					dataSourceToAdd.add(new DatasourceWrapper(
 							current.getName(), (BasicDataSource) obj));
 
 				}
-
 			}
 
 		} catch (NamingException e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return null;
 		}
 
@@ -87,11 +96,6 @@ public class DatasourceDynamicHealthCheck implements DynamicHealthCheck {
 				result = new ArrayList<HealthCheck>();
 			for (DatasourceWrapper datasourceWrapper : dataSourceToAdd) {
 				// no support of validation query timeout with openEJB 3.1
-
-				if (log.isLoggable(Level.FINE)) {
-					log.fine("Add datasource checker for :"
-							+ datasourceWrapper.getName());
-				}
 
 				result.add(new DatabaseCheck(datasourceWrapper.getName(),
 						datasourceWrapper.getDatasource(), datasourceWrapper
