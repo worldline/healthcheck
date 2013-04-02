@@ -16,7 +16,7 @@ public class HealthCheckLocatorTestCase {
 	@Test
 	public void testGetFilteredHealthChecksList() {
 
-		Collection<HealthCheck> healthChecks = HealthCheckLocator
+		Collection<HealthCheck> healthChecks = HealthCheckManager
 				.getFilteredHealthChecks(null);
 
 		assertNotNull(healthChecks);
@@ -25,7 +25,7 @@ public class HealthCheckLocatorTestCase {
 		List<String> exclude = new ArrayList<String>();
 		exclude.add("testCheck3 ");
 
-		healthChecks = HealthCheckLocator.getFilteredHealthChecks(exclude);
+		healthChecks = HealthCheckManager.getFilteredHealthChecks(exclude);
 
 		assertNotNull(healthChecks);
 		assertEquals(3, healthChecks.size());
@@ -34,7 +34,7 @@ public class HealthCheckLocatorTestCase {
 		exclude.add("testCheck3 ");
 		exclude.add("   testCheck2");
 
-		healthChecks = HealthCheckLocator.getFilteredHealthChecks(exclude);
+		healthChecks = HealthCheckManager.getFilteredHealthChecks(exclude);
 
 		assertNotNull(healthChecks);
 		assertEquals(2, healthChecks.size());

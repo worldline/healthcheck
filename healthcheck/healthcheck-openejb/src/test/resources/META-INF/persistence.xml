@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Atos Worldline -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+    version="1.0">
+
+	<persistence-unit name="persistenceUnitOk" transaction-type="JTA">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>jdbc/xastory-csm-coreDS</jta-data-source>
+		<properties>
+			<property name="hibernate.ejb.cfgfile"
+				value="hibernate.cfg.xml" />
+		</properties>
+	</persistence-unit>
+	    
+    <persistence-unit name="persistenceUnitKo" transaction-type="JTA">
+       	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>jdbc/missingDatasourceDS</jta-data-source>
+		<properties>
+			<property name="hibernate.ejb.cfgfile"
+				value="hibernate.cfg.xml" />
+		</properties>
+    </persistence-unit>
+    
+</persistence>
+

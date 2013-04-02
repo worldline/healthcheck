@@ -12,7 +12,6 @@ import com.yammer.metrics.core.HealthCheck;
  * This interface is suitable when you deal with dynamic configuration<br/>
  * Example of checks about datasource in application server
  * 
- * @author jmacke
  * 
  */
 public interface HealthCheckFactory {
