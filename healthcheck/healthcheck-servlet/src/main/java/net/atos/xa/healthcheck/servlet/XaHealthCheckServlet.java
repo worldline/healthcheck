@@ -97,6 +97,12 @@ public class XaHealthCheckServlet extends HealthCheckServlet {
 		resp.setContentType(CONTENT_TYPE);
 		resp.setHeader("Cache-Control", "must-revalidate,no-cache,no-store");
 		final PrintWriter writer = resp.getWriter();
+
+		writer.format("Server host: %s (%s)\n", req.getLocalName(),
+				req.getLocalAddr());
+		writer.format("Client host: %s (%s)\n\n", req.getRemoteHost(),
+				req.getRemoteAddr());
+
 		if (results.isEmpty()) {
 			resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
 			writer.println("! No health checks registered.");
@@ -134,7 +140,7 @@ public class XaHealthCheckServlet extends HealthCheckServlet {
 			}
 		}
 
-		writer.format("Total execution time : %s ms \n",
+		writer.format("\nTotal execution time : %s ms \n",
 				System.currentTimeMillis() - start);
 		writer.close();
 	}

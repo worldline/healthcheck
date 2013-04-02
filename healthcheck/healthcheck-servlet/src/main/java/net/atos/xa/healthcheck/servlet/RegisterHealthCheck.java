@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import net.atos.xa.healthcheck.HealthCheckLocator;
+import net.atos.xa.healthcheck.HealthCheckManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class RegisterHealthCheck {
 			}
 		}
 
-		return HealthCheckLocator.getFilteredHealthChecks(excludeChecks);
+		return HealthCheckManager.getFilteredHealthChecks(excludeChecks);
 
 	}
 
