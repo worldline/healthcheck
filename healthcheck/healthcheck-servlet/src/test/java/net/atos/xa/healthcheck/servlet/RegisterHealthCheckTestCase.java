@@ -1,4 +1,4 @@
-package net.atos.xa.production.healthcheck.spi;
+package net.atos.xa.healthcheck.servlet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

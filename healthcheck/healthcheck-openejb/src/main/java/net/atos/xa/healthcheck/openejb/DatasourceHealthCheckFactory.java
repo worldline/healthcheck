@@ -43,7 +43,7 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 		if (log.isDebugEnabled()) {
 			log.debug("[HealthCheck] datasource healthcheck factory ");
 			StringBuffer buffer = new StringBuffer();
-			log.debug("Jndi Tree");
+			log.debug("[HealthCheck] Jndi Tree");
 			JNDIUtil.appendJndiTreeToBuffer(buffer,
 					JNDIUtil.getOpenEjbRootContext(), null);
 			log.debug(buffer.toString());

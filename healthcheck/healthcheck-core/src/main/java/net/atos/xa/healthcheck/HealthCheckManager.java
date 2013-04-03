@@ -206,7 +206,7 @@ class HealthCheckManagerUnit {
 					while (urls.hasMoreElements()) {
 						URL url = urls.nextElement();
 						log.debug(
-								"[HealthCheck] load SPI file {} for healthcheck",
+								"[HealthCheck] load SPI file {} for static healthcheck",
 								url.getPath());
 					}
 				}
@@ -217,7 +217,7 @@ class HealthCheckManagerUnit {
 					while (urls.hasMoreElements()) {
 						URL url = urls.nextElement();
 						log.debug(
-								"[HealthCheck] load SPI file {} for healthcheck",
+								"[HealthCheck] load SPI file {} for dynamic healthcheck",
 								url.getPath());
 					}
 				}
@@ -238,18 +238,18 @@ class HealthCheckManagerUnit {
 			healthChecks.put(check.getName(), check);
 		}
 
-		ServiceLoader<HealthCheckFactory> serviceLoaderDynamic = ServiceLoader
+		ServiceLoader<HealthCheckFactory> serviceLoaderFactory = ServiceLoader
 				.load(HealthCheckFactory.class, classLoader);
-		Iterator<HealthCheckFactory> iteratorDynamic = serviceLoaderDynamic
+		Iterator<HealthCheckFactory> iteratorFactory = serviceLoaderFactory
 				.iterator();
-		while (iteratorDynamic.hasNext()) {
-			HealthCheckFactory dynamicCheck = iteratorDynamic.next();
-			if (dynamicCheck.getHealthChecks() != null) {
-				for (HealthCheck check : dynamicCheck.getHealthChecks()) {
+		while (iteratorFactory.hasNext()) {
+			HealthCheckFactory factory = iteratorFactory.next();
+			if (factory.getHealthChecks() != null) {
+				for (HealthCheck check : factory.getHealthChecks()) {
 					log.debug(
 							"[HealthCheck] found a check {} (classname : {}) given by the healthcheck factory {}",
 							check.getName(), check.getClass(),
-							dynamicCheck.getClass());
+							factory.getClass());
 					healthChecks.put(check.getName(), check);
 				}
 			}
