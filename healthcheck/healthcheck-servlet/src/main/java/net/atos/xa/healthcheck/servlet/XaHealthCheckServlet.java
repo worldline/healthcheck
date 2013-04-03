@@ -20,9 +20,23 @@ import com.yammer.metrics.core.HealthCheckRegistry;
 import com.yammer.metrics.reporting.HealthCheckServlet;
 
 /**
+ * <p>
  * Complement the {@link HealthCheckServlet} servlet from the <a
  * href="http ://metrics.codahale.com">Yammer metrics framework</a>
  * 
+ * Initialization parameters
+ * 
+ * param name "excludeChecks": a list of healthcheck names separated by
+ * semi-colon ';'. white spaces are ignored between each semi-colon and name. If
+ * a name does not match an available check, it is ignored.
+ * 
+ * 
+ * Example: <textarea rows="11" cols="10 name="xml" readonly> <servlet>
+ * <servlet-name>HealthCheckServlet</servlet-name> <servlet-class>
+ * net.atos.xa.healthcheck.servlet.XaHealthCheckServlet </servlet-class>
+ * <init-param> <param-name>excludeChecks</param-name>
+ * <param-value>check1;check2</param-value> </init-param> </servlet> </textarea>
+ * </p>
  * 
  */
 public class XaHealthCheckServlet extends HealthCheckServlet {
