@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.yammer.metrics.core.HealthCheck;
 
-public class HealthCheckLocatorTestCase {
+public class HealthCheckManagerTestCase {
 
 	@Test
 	public void testGetFilteredHealthChecksList() {

@@ -3,13 +3,15 @@ package net.atos.xa.healthcheck.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.atos.xa.healthcheck.report.HealthCheckReport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.yammer.metrics.HealthChecks;
 import com.yammer.metrics.core.HealthCheck;
 import com.yammer.metrics.core.HealthCheckRegistry;
-import com.yammer.metrics.reporting.HealthCheckServlet;
 
 /**
  * <p>
@@ -39,7 +40,7 @@ import com.yammer.metrics.reporting.HealthCheckServlet;
  * </p>
  * 
  */
-public class XaHealthCheckServlet extends HealthCheckServlet {
+public class XaHealthCheckServlet extends HttpServlet {
 
 	private static final String EXCLUDE_CHECKS = "excludeChecks";
 
@@ -51,7 +52,7 @@ public class XaHealthCheckServlet extends HealthCheckServlet {
 	 * The attribute name of the {@link HealthCheckRegistry} instance in the
 	 * servlet context.
 	 */
-	public static final String REGISTRY_ATTRIBUTE = HealthCheckServlet.class
+	public static final String REGISTRY_ATTRIBUTE = XaHealthCheckServlet.class
 			.getName() + ".registry";
 	private static final String CONTENT_TYPE = "text/plain";
 
@@ -119,40 +120,15 @@ public class XaHealthCheckServlet extends HealthCheckServlet {
 
 		if (results.isEmpty()) {
 			resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-			writer.println("! No health checks registered.");
 		} else {
 			if (isAllHealthy(results)) {
 				resp.setStatus(HttpServletResponse.SC_OK);
 			} else {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
-			for (Map.Entry<String, HealthCheck.Result> entry : results
-					.entrySet()) {
-				final HealthCheck.Result result = entry.getValue();
-				if (result.isHealthy()) {
-					if (result.getMessage() != null) {
-						writer.format("* %s=OK (executed at %s)\n  %s\n",
-								entry.getKey(), new Date(), result.getMessage());
-					} else {
-						writer.format("* %s=OK (executed at %s)\n",
-								entry.getKey(), new Date());
-					}
-				} else {
-					if (result.getMessage() != null) {
-						writer.format("! %s=ERROR\n!  %s\n", entry.getKey(),
-								result.getMessage());
-					}
-
-					@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-					final Throwable error = result.getError();
-					if (error != null) {
-						writer.println();
-						error.printStackTrace(writer);
-						writer.println();
-					}
-				}
-			}
 		}
+
+		HealthCheckReport.produceReport(registry, resp.getWriter());
 
 		writer.format("\nTotal execution time : %s ms \n",
 				System.currentTimeMillis() - start);

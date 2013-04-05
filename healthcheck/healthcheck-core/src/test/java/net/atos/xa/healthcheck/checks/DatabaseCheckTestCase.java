@@ -10,7 +10,7 @@ import com.yammer.metrics.core.HealthCheck.Result;
 public class DatabaseCheckTestCase {
 
 	@Test
-	public void testExecuteCheck() throws Exception {
+	public void testExecuteCheck() {
 
 		JdbcDataSource ds = new JdbcDataSource();
 		ds.setURL("jdbc:h2:mem:activiti");
@@ -18,7 +18,7 @@ public class DatabaseCheckTestCase {
 		ds.setPassword("sa");
 
 		DatabaseCheck check = new DatabaseCheck("name", ds, null, 0);
-		Result result = check.check();
+		Result result = check.execute();
 		Assert.assertEquals(Result.healthy(), result);
 
 	}

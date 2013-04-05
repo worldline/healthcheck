@@ -150,6 +150,26 @@ public class HealthCheckManager {
 	}
 
 	/**
+	 * register the healthchecks into the {@link HealthChecks} class.
+	 * 
+	 * @param healthChecks
+	 */
+	public static void registerHealthChecks(HealthCheck... healthChecks) {
+		if (managerInstance == null) {
+			createManager();
+		}
+		managerInstance.registerHealthChecks(healthChecks);
+
+	}
+
+	public static boolean runHealthchecks() {
+		if (managerInstance == null) {
+			createManager();
+		}
+		return managerInstance.runHealthchecks();
+	}
+
+	/**
 	 * Create our HealthCheckLocatorUnit instance
 	 * 
 	 */
@@ -306,8 +326,36 @@ class HealthCheckManagerUnit {
 
 	}
 
+	void registerHealthChecks(HealthCheck... healthChecks) {
+
+		if (healthChecks != null) {
+			for (int i = 0; i < healthChecks.length; i++) {
+				if (healthChecks[i] != null) {
+					log.debug(
+							"[HealthCheck] register a check {} (classname : {})",
+							healthChecks[i].getName(),
+							healthChecks[i].getClass());
+					HealthChecks.register(healthChecks[i]);
+				}
+			}
+		}
+	}
+
+	boolean runHealthchecks() {
+		return isAllHealthy(HealthChecks.runHealthChecks());
+	}
+
 	private String trimToEmpty(String str) {
 		return str == null ? "" : str.trim();
+	}
+
+	private boolean isAllHealthy(Map<String, HealthCheck.Result> results) {
+		for (HealthCheck.Result result : results.values()) {
+			if (!result.isHealthy()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
