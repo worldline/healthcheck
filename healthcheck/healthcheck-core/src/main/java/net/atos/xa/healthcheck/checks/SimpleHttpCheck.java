@@ -203,9 +203,10 @@ public class SimpleHttpCheck extends HealthCheck {
 		HttpClient httpclient = new DefaultHttpClient(params);
 
 		HttpContext context = new BasicHttpContext(null);
-		if (proxyHost != null)
+		if (proxyHost != null) {
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxyHost);
+		}
 
 		HttpResponse response = httpclient.execute(host, request, context);
 
@@ -215,8 +216,10 @@ public class SimpleHttpCheck extends HealthCheck {
 					getResponseBody(response));
 		}
 
-		if (response.getStatusLine().getStatusCode() == 200)
+		if (response.getStatusLine().getStatusCode() == 200) {
 			return Result.healthy();
+		}
+
 		else {
 			return Result.unhealthy("HTTP status code "
 					+ response.getStatusLine().getStatusCode() + " for check "

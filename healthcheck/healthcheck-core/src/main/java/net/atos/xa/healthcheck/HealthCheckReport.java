@@ -14,6 +14,10 @@ import com.yammer.metrics.core.HealthCheckRegistry;
  */
 public class HealthCheckReport {
 
+	private HealthCheckReport() {
+
+	}
+
 	/**
 	 * Produce a textual report for the healthcheck
 	 * 
