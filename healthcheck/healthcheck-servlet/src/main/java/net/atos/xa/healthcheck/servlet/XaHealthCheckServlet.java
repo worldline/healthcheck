@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.atos.xa.healthcheck.report.HealthCheckReport;
+import net.atos.xa.healthcheck.HealthCheckManager;
+import net.atos.xa.healthcheck.HealthCheckReport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,11 +92,11 @@ public class XaHealthCheckServlet extends HttpServlet {
 		}
 
 		log.info("[HealthCheck] register healthcheck");
-		Collection<HealthCheck> healthChecks = RegisterHealthCheck
+		Collection<HealthCheck> healthChecks = HealthCheckManager
 				.getFilteredHealthChecksList(config
 						.getInitParameter(EXCLUDE_CHECKS));
 
-		RegisterHealthCheck.registerHealthChecks(healthChecks);
+		HealthCheckManager.registerHealthChecks(healthChecks);
 
 	}
 

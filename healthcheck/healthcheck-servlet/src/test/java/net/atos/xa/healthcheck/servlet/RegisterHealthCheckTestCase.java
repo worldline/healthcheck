@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Collection;
 
-import net.atos.xa.healthcheck.servlet.RegisterHealthCheck;
+import net.atos.xa.healthcheck.HealthCheckManager;
 
 import org.junit.Test;
 
@@ -16,19 +16,19 @@ public class RegisterHealthCheckTestCase {
 	@Test
 	public void testGetFilteredHealthChecksList() {
 
-		Collection<HealthCheck> healthChecks = RegisterHealthCheck
+		Collection<HealthCheck> healthChecks = HealthCheckManager
 				.getFilteredHealthChecksList(null);
 
 		assertNotNull(healthChecks);
 		assertEquals(3, healthChecks.size());
 
-		healthChecks = RegisterHealthCheck
+		healthChecks = HealthCheckManager
 				.getFilteredHealthChecksList("testCheck3 ");
 
 		assertNotNull(healthChecks);
 		assertEquals(2, healthChecks.size());
 
-		healthChecks = RegisterHealthCheck
+		healthChecks = HealthCheckManager
 				.getFilteredHealthChecksList("testCheck3   ;   testCheck2");
 
 		assertNotNull(healthChecks);

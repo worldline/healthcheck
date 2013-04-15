@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -113,6 +114,33 @@ public class HealthCheckManager {
 			createManager();
 		}
 		return managerInstance.getFilteredHealthChecks(excludeChecks);
+	}
+
+	/**
+	 * get a list of healthcheck <br/>
+	 * 
+	 * Example, if we have the following healthchecks with the names: "check1",
+	 * "check2" and "check3".<br/>
+	 * A call to getFilteredHealthChecksList("check2;check3") will return only
+	 * the "check1" healthcheck<br/>
+	 * <br/>
+	 * 
+	 * Implementations of healthcheck are retrieved thanks to SPI mechanism. @see
+	 * {@link java.util.ServiceLoader}
+	 * 
+	 * @param excludeHealthChecks
+	 *            list of excluded healthchecks (list of names separated by a
+	 *            semicolon
+	 * @return
+	 */
+	public static Collection<HealthCheck> getFilteredHealthChecksList(
+			String excludeHealthChecks) {
+
+		if (managerInstance == null) {
+			createManager();
+		}
+		return managerInstance.getFilteredHealthChecksList(excludeHealthChecks);
+
 	}
 
 	/**
@@ -308,6 +336,23 @@ class HealthCheckManagerUnit {
 		}
 
 		return result;
+	}
+
+	Collection<HealthCheck> getFilteredHealthChecksList(
+			String excludeHealthChecks) {
+
+		List<String> excludeChecks = new ArrayList<String>();
+		if (excludeHealthChecks != null) {
+
+			StringTokenizer tokenizer = new StringTokenizer(
+					excludeHealthChecks, ";");
+			while (tokenizer.hasMoreTokens()) {
+				excludeChecks.add(trimToEmpty(tokenizer.nextToken()));
+			}
+		}
+
+		return getFilteredHealthChecks(excludeChecks);
+
 	}
 
 	/**
