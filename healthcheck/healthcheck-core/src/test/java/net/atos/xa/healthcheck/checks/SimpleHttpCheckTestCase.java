@@ -15,7 +15,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
@@ -53,12 +52,10 @@ public class SimpleHttpCheckTestCase {
 	public void testSimpleHttpCheck() throws Exception {
 
 		HttpHost host = new HttpHost("localhost", serversocket.getLocalPort());
-		SimpleHttpCheck check1 = new SimpleHttpCheck("ok", host, new HttpGet(
-				"/ok"), null);
+		SimpleHttpCheck check1 = new SimpleHttpCheck("ok", host, "/ok", null);
 		Assert.assertTrue(check1.execute().isHealthy());
 
-		SimpleHttpCheck check2 = new SimpleHttpCheck("ko", host, new HttpGet(
-				"/ko"), null);
+		SimpleHttpCheck check2 = new SimpleHttpCheck("ko", host, "/ko", null);
 		Assert.assertFalse(check2.execute().isHealthy());
 
 	}

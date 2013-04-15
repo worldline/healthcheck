@@ -7,10 +7,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -25,7 +24,7 @@ import com.yammer.metrics.core.HealthCheck;
  * 
  * <p>
  * A simple http check. It returns healthy if the http response code = 200 else
- * it returns unhealthy
+ * it returns unhealthy This check uses Apache http client
  * </p>
  */
 public class SimpleHttpCheck extends HealthCheck {
@@ -37,17 +36,17 @@ public class SimpleHttpCheck extends HealthCheck {
 	/**
 	 * the remote host
 	 */
-	private HttpHost host;
+	private final HttpHost host;
 
 	/**
 	 * the proxy host
 	 */
-	private HttpHost proxyHost;
+	private final HttpHost proxyHost;
 
 	/**
 	 * the http request to send
 	 */
-	private HttpRequest request;
+	private final HttpRequest request;
 
 	/**
 	 * 
@@ -101,8 +100,23 @@ public class SimpleHttpCheck extends HealthCheck {
 	 * </ul>
 	 * 
 	 */
-	private HttpParams params;
+	private final HttpParams params;
 
+	/**
+	 * A simple check for an HTTP request (support any kind of HTTP request)
+	 * through a proxy
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param host
+	 *            the target host (hostname, port, scheme to use)
+	 * @param proxyHost
+	 *            the proxy host (hostname, port, scheme to use)
+	 * @param request
+	 *            the HTTP request (can be any HTTP request)
+	 * @param params
+	 *            the additional parameters (charset, timeout etc..)
+	 */
 	public SimpleHttpCheck(String name, HttpHost host, HttpHost proxyHost,
 			HttpRequest request, HttpParams params) {
 		super("simpleHttpCheck " + name);
@@ -115,18 +129,72 @@ public class SimpleHttpCheck extends HealthCheck {
 			this.params = params;
 	}
 
+	/**
+	 * A simple check for an HTTP request (support any kind of HTTP request)
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param host
+	 *            the target host (hostname, port, scheme to use)
+	 * @param request
+	 *            the HTTP request (can be any HTTP request)
+	 * @param params
+	 *            the additional parameters (charset, timeout etc..)
+	 */
 	public SimpleHttpCheck(String name, HttpHost host, HttpRequest request,
 			HttpParams params) {
 		this(name, host, null, request, params);
 	}
 
-	public SimpleHttpCheck(String name, HttpHost host, String uri,
+	/**
+	 * A simple check for an HTTP GET request
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param hostname
+	 *            the target host name
+	 * @param port
+	 *            the target post
+	 * @param uri
+	 *            the uri to call on this target host
+	 * @param params
+	 *            the additional parameters (charset, timeout etc..)
+	 */
+	public SimpleHttpCheck(String name, String hostname, int port, String uri,
 			HttpParams params) {
-		this(name, host, new HttpGet(uri), params);
+		this(name, new HttpHost(hostname, port), new BasicHttpRequest("GET",
+				uri), params);
 	}
 
+	/**
+	 * A simple check for an HTTP GET request
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param host
+	 *            the target host (hostname, port, scheme to use)
+	 * @param uri
+	 *            the uri to call on this target host
+	 * @param params
+	 *            the additional parameters (charset, timeout etc..)
+	 */
+	public SimpleHttpCheck(String name, HttpHost host, String uri,
+			HttpParams params) {
+		this(name, host, new BasicHttpRequest("GET", uri), params);
+	}
+
+	/**
+	 * A simple check for an HTTP GET request with uri "/"
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param host
+	 *            the target host (hostname, port, scheme to use)
+	 * @param params
+	 *            the additional parameters (charset, timeout etc..)
+	 */
 	public SimpleHttpCheck(String name, HttpHost host, HttpParams params) {
-		this(name, host, new HttpGet("/"), params);
+		this(name, host, new BasicHttpRequest("GET", "/"), params);
 	}
 
 	@Override
@@ -158,7 +226,7 @@ public class SimpleHttpCheck extends HealthCheck {
 	}
 
 	private String getResponseBody(final HttpResponse response)
-			throws HttpResponseException, IOException {
+			throws IOException {
 		HttpEntity entity = response.getEntity();
 		return entity == null ? null : EntityUtils.toString(entity);
 	}

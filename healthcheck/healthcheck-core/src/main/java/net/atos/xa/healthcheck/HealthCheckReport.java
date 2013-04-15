@@ -1,4 +1,4 @@
-package net.atos.xa.healthcheck.report;
+package net.atos.xa.healthcheck;
 
 import java.io.PrintWriter;
 import java.util.Date;
