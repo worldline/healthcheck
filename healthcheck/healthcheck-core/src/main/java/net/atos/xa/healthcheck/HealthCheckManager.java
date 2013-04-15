@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.yammer.metrics.HealthChecks;
 import com.yammer.metrics.core.HealthCheck;
+import com.yammer.metrics.core.HealthCheck.Result;
 
 /**
  * 
@@ -199,6 +200,13 @@ public class HealthCheckManager {
 			createManager();
 		}
 		return managerInstance.runHealthchecks();
+	}
+
+	public static Map<String, Result> runHealthchecksWithDetailReport() {
+		if (managerInstance == null) {
+			createManager();
+		}
+		return managerInstance.runHealthchecksWithDetailReport();
 	}
 
 	/**
@@ -393,7 +401,11 @@ class HealthCheckManagerUnit {
 	}
 
 	boolean runHealthchecks() {
-		return isAllHealthy(HealthChecks.runHealthChecks());
+		return isAllHealthy(runHealthchecksWithDetailReport());
+	}
+
+	Map<String, Result> runHealthchecksWithDetailReport() {
+		return HealthChecks.runHealthChecks();
 	}
 
 	private String trimToEmpty(String str) {

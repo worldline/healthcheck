@@ -4,8 +4,9 @@
 <%@ page import="com.yammer.metrics.core.HealthCheckRegistry" %>
 <%@ page import="com.yammer.metrics.HealthChecks" %>
 <%@ page import="java.io.PrintWriter" %>
-<%@ page import="net.atos.xa.healthcheck.report.HealthCheckReport" %>
-<%@ page import="net.atos.xa.healthcheck.servlet.RegisterHealthCheck" %>
+<%@ page import="net.atos.xa.healthcheck.HealthCheckReport" %>
+<%@ page import="net.atos.xa.healthcheck.HealthCheckManager" %>
+
 
 <%!
 
@@ -21,10 +22,10 @@ public void jspInit(){
 	* A call to getFilteredHealthChecksList("check2;check3") will return only
 	* the "check1" healthcheck<br/>
 	*/
-	Collection<HealthCheck> healthChecks = RegisterHealthCheck
+	Collection<HealthCheck> healthChecks = HealthCheckManager
 			.getFilteredHealthChecksList(null);
 
-	RegisterHealthCheck.registerHealthChecks(healthChecks);
+	HealthCheckManager.registerHealthChecks(healthChecks);
 	
 }
 
