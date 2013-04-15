@@ -84,10 +84,14 @@ import com.yammer.metrics.core.HealthCheck;
  */
 public class HealthCheckManager {
 	// we delegate calls to HealthCheckManagerUnit class
-	private volatile static HealthCheckManagerUnit managerInstance = null;
+	private static volatile HealthCheckManagerUnit managerInstance = null;
 
 	// lock to synchronize context initialization
 	private static Lock initializationLock = new ReentrantLock();
+
+	private HealthCheckManager() {
+
+	}
 
 	/**
 	 * get all the availbable health checks
@@ -311,8 +315,9 @@ class HealthCheckManagerUnit {
 
 	Collection<HealthCheck> getFilteredHealthChecks(List<String> excludeChecks) {
 
-		if (excludeChecks == null)
+		if (excludeChecks == null) {
 			return healthChecks.values();
+		}
 
 		List<String> trimmedExcludeChecks = new ArrayList<String>();
 		for (String string : excludeChecks) {
@@ -327,8 +332,9 @@ class HealthCheckManagerUnit {
 
 			if (!trimmedExcludeChecks.contains(trimToEmpty(healthcheck
 					.getName()))) {
-				if (result == null)
+				if (result == null) {
 					result = new ArrayList<HealthCheck>();
+				}
 
 				result.add(healthcheck);
 			}

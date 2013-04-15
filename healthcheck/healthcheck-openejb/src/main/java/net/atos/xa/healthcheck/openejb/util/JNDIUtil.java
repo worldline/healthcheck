@@ -18,6 +18,10 @@ public class JNDIUtil {
 
 	private static final String ROOT = "";
 
+	private JNDIUtil() {
+
+	}
+
 	public static void appendJndiTreeToBuffer(StringBuffer buffer,
 			Context context, String prefix) {
 		try {

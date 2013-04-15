@@ -49,7 +49,9 @@ public class DatabaseCheck extends HealthCheck {
 	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
 			.getName());
 
-	private static final Map<String, String> predefinedValidationQueries;
+	private static final String SELECT_1_QUERY = "select 1";
+
+	private static final Map<String, String> PREDEFINED_VALIDATION_QUERIES;
 	static {
 		Map<String, String> aMap = new HashMap<String, String>();
 		// hsqldb
@@ -60,28 +62,28 @@ public class DatabaseCheck extends HealthCheck {
 		aMap.put("oracle.jdbc.driver.OracleDriver", "select 1 from dual");
 
 		// mysql
-		aMap.put("com.mysql.jdbc.Driver", "select 1");
-		aMap.put("org.gjt.mm.mysql.Driver", "select 1");
+		aMap.put("com.mysql.jdbc.Driver", SELECT_1_QUERY);
+		aMap.put("org.gjt.mm.mysql.Driver", SELECT_1_QUERY);
 
 		// db2
 		aMap.put("com.ibm.db2.jcc.DB2Driver", "select 1 from sysibm.sysdummy1");
 
 		// microsoft sql
-		aMap.put("com.microsoft.jdbc.sqlserver.SQLServerDriver", "select 1");
+		aMap.put("com.microsoft.jdbc.sqlserver.SQLServerDriver", SELECT_1_QUERY);
 
 		// postgresql
 		aMap.put("org.postgresql.Driver", "select version()");
 
 		// ingres
-		aMap.put("com.ingres.jdbc.IngresDriver", "select 1");
+		aMap.put("com.ingres.jdbc.IngresDriver", SELECT_1_QUERY);
 
 		// derby
 		aMap.put("org.apache.derby.jdbc.ClientDriver", "values 1");
 
 		// h2
-		aMap.put("org.h2.Driver", "select 1");
+		aMap.put("org.h2.Driver", SELECT_1_QUERY);
 
-		predefinedValidationQueries = Collections.unmodifiableMap(aMap);
+		PREDEFINED_VALIDATION_QUERIES = Collections.unmodifiableMap(aMap);
 	}
 
 	/** the datasource on which the test is done */
@@ -117,8 +119,9 @@ public class DatabaseCheck extends HealthCheck {
 
 		log.info("[HealthCheck] execute check {}", getName());
 
-		if (dataSource == null)
+		if (dataSource == null) {
 			return Result.unhealthy("no datasource provided");
+		}
 
 		Connection connection = null;
 		PreparedStatement stmt = null;
@@ -133,7 +136,7 @@ public class DatabaseCheck extends HealthCheck {
 				Driver driver = DriverManager.getDriver(connection
 						.getMetaData().getURL());
 
-				validationQuery = predefinedValidationQueries.get(driver
+				validationQuery = PREDEFINED_VALIDATION_QUERIES.get(driver
 						.getClass().getName());
 			}
 

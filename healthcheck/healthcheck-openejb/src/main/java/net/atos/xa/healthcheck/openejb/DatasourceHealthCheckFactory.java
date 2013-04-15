@@ -69,8 +69,10 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 							(Context) obj, prefix + '/' + current.getName());
 
 					if (healthChecks != null) {
-						if (result == null)
+						if (result == null) {
 							result = new ArrayList<HealthCheck>();
+						}
+
 						result.addAll(healthChecks);
 					}
 
@@ -92,8 +94,10 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 		if (!dataSourceToAdd.isEmpty()) {
 
-			if (result == null)
+			if (result == null) {
 				result = new ArrayList<HealthCheck>();
+			}
+
 			for (DatasourceWrapper datasourceWrapper : dataSourceToAdd) {
 				// no support of validation query timeout with openEJB 3.1
 
@@ -126,8 +130,9 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 		public boolean equals(Object obj) {
 
-			if (obj == null || !(obj instanceof DatasourceWrapper))
+			if (!(obj instanceof DatasourceWrapper)) {
 				return false;
+			}
 
 			String nameDs = ((DatasourceWrapper) obj).getName();
 
