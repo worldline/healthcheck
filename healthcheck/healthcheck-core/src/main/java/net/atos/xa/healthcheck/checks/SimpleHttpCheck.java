@@ -184,6 +184,20 @@ public class SimpleHttpCheck extends HealthCheck {
 	}
 
 	/**
+	 * A simple check for an HTTP GET request (use default parameters)
+	 * 
+	 * @param name
+	 *            the name of this check
+	 * @param host
+	 *            the target host (hostname, port, scheme to use)
+	 * @param uri
+	 *            the uri to call on this target host
+	 */
+	public SimpleHttpCheck(String name, HttpHost host, String uri) {
+		this(name, host, new BasicHttpRequest("GET", uri), null);
+	}
+
+	/**
 	 * A simple check for an HTTP GET request with uri "/"
 	 * 
 	 * @param name
