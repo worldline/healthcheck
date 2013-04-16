@@ -93,6 +93,9 @@ public class DatabaseCheck extends HealthCheck {
 	/** the validation query timeout (if timeout is exceeded, the check fails) */
 	private int validationQueryTimeout;
 
+	/** the classname of the jdbc driver */
+	private String jdbcDriver;
+
 	/**
 	 * 
 	 * @param name
@@ -107,11 +110,13 @@ public class DatabaseCheck extends HealthCheck {
 	 *            fails
 	 */
 	public DatabaseCheck(String name, DataSource dataSource,
-			String validationQuery, int validationQueryTimeout) {
+			String validationQuery, String jdbcDriver,
+			int validationQueryTimeout) {
 		super("databaseCheck " + name);
 		this.dataSource = dataSource;
 		this.validationQuery = validationQuery;
 		this.validationQueryTimeout = validationQueryTimeout;
+		this.jdbcDriver = jdbcDriver;
 	}
 
 	@Override
@@ -133,11 +138,27 @@ public class DatabaseCheck extends HealthCheck {
 			if (validationQuery == null) {
 				// use of a predefined (can be different depending on the
 				// database used
-				Driver driver = DriverManager.getDriver(connection
-						.getMetaData().getURL());
+				String jdbcDriverUsed = jdbcDriver;
+				if (jdbcDriverUsed == null) {
+					Driver driver = DriverManager.getDriver(connection
+							.getMetaData().getURL());
+					jdbcDriverUsed = driver.getClass().getName();
+				}
 
-				validationQuery = PREDEFINED_VALIDATION_QUERIES.get(driver
-						.getClass().getName());
+				log.debug("[HealthCheck] jdbc driver class name : {} ",
+						jdbcDriverUsed);
+
+				validationQuery = PREDEFINED_VALIDATION_QUERIES
+						.get(jdbcDriverUsed);
+
+				if (validationQuery == null) {
+					log.debug(
+							"[HealthCheck] predefined validation query is null, use the default {}",
+							SELECT_1_QUERY);
+
+					validationQuery = SELECT_1_QUERY;
+				}
+
 			}
 
 			log.info(

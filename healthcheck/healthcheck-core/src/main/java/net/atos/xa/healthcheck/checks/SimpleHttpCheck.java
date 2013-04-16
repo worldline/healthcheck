@@ -214,14 +214,20 @@ public class SimpleHttpCheck extends HealthCheck {
 	@Override
 	protected Result check() throws Exception {
 
+		log.info("[HealthCheck] execute check {}", getName());
+
 		HttpClient httpclient = new DefaultHttpClient(params);
 
 		HttpContext context = new BasicHttpContext(null);
 		if (proxyHost != null) {
+
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxyHost);
 		}
 
+		log.info(
+				"[HealthCheck] use execute HTTP request {} on host {} through the proxy {}",
+				request, host, proxyHost);
 		HttpResponse response = httpclient.execute(host, request, context);
 
 		if (log.isDebugEnabled()) {
@@ -231,10 +237,13 @@ public class SimpleHttpCheck extends HealthCheck {
 		}
 
 		if (response.getStatusLine().getStatusCode() == 200) {
+			log.info("[HealthCheck] check {} is OK", getName());
+
 			return Result.healthy();
 		}
 
 		else {
+			log.info("[HealthCheck] check {} is ERROR", getName());
 			return Result.unhealthy("HTTP status code "
 					+ response.getStatusLine().getStatusCode() + " for check "
 					+ getName());

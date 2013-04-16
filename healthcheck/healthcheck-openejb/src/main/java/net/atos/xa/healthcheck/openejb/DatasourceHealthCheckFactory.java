@@ -103,7 +103,9 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 				result.add(new DatabaseCheck(datasourceWrapper.getName(),
 						datasourceWrapper.getDatasource(), datasourceWrapper
-								.getDatasource().getValidationQuery(), 0));
+								.getDatasource().getValidationQuery(),
+						datasourceWrapper.getDatasource().getDriverClassName(),
+						0));
 			}
 		}
 

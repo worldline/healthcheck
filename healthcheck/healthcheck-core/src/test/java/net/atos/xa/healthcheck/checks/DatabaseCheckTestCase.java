@@ -17,7 +17,7 @@ public class DatabaseCheckTestCase {
 		ds.setUser("sa");
 		ds.setPassword("sa");
 
-		DatabaseCheck check = new DatabaseCheck("name", ds, null, 0);
+		DatabaseCheck check = new DatabaseCheck("name", ds, null, null, 0);
 		Result result = check.execute();
 		Assert.assertEquals(Result.healthy(), result);
 
