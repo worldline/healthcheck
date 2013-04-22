@@ -34,6 +34,8 @@ public class SimpleHttpCheck extends HealthCheck {
 	private static Logger log = LoggerFactory.getLogger(SimpleHttpCheck.class
 			.getName());
 
+	private static final String GET_HTTP_METHOD = "GET";
+
 	/**
 	 * the remote host
 	 */
@@ -124,10 +126,12 @@ public class SimpleHttpCheck extends HealthCheck {
 		this.host = host;
 		this.proxyHost = proxyHost;
 		this.request = request;
-		if (params == null)
+		if (params == null) {
 			this.params = new BasicHttpParams();
-		else
+		} else {
 			this.params = params;
+		}
+
 	}
 
 	/**
@@ -163,8 +167,8 @@ public class SimpleHttpCheck extends HealthCheck {
 	 */
 	public SimpleHttpCheck(String name, String hostname, int port, String uri,
 			HttpParams params) {
-		this(name, new HttpHost(hostname, port), new BasicHttpRequest("GET",
-				uri), params);
+		this(name, new HttpHost(hostname, port), new BasicHttpRequest(
+				GET_HTTP_METHOD, uri), params);
 	}
 
 	/**
@@ -181,7 +185,7 @@ public class SimpleHttpCheck extends HealthCheck {
 	 */
 	public SimpleHttpCheck(String name, HttpHost host, String uri,
 			HttpParams params) {
-		this(name, host, new BasicHttpRequest("GET", uri), params);
+		this(name, host, new BasicHttpRequest(GET_HTTP_METHOD, uri), params);
 	}
 
 	/**
@@ -195,7 +199,7 @@ public class SimpleHttpCheck extends HealthCheck {
 	 *            the uri to call on this target host
 	 */
 	public SimpleHttpCheck(String name, HttpHost host, String uri) {
-		this(name, host, new BasicHttpRequest("GET", uri), null);
+		this(name, host, new BasicHttpRequest(GET_HTTP_METHOD, uri), null);
 	}
 
 	/**
@@ -209,7 +213,7 @@ public class SimpleHttpCheck extends HealthCheck {
 	 *            the additional parameters (charset, timeout etc..)
 	 */
 	public SimpleHttpCheck(String name, HttpHost host, HttpParams params) {
-		this(name, host, new BasicHttpRequest("GET", "/"), params);
+		this(name, host, new BasicHttpRequest(GET_HTTP_METHOD, "/"), params);
 	}
 
 	@Override

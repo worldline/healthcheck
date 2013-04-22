@@ -122,6 +122,21 @@ public class HealthCheckManager {
 	}
 
 	/**
+	 * Find all the available healthcheck except those mentionned in parameter
+	 * 
+	 * @param excludeChecks
+	 *            an array of healthcheck names to exclude from the list
+	 * @return
+	 */
+	public static Collection<HealthCheck> getFilteredHealthChecks(
+			String... excludeChecks) {
+		if (managerInstance == null) {
+			createManager();
+		}
+		return managerInstance.getFilteredHealthChecks(excludeChecks);
+	}
+
+	/**
 	 * get a list of healthcheck <br/>
 	 * 
 	 * Example, if we have the following healthchecks with the names: "check1",
@@ -333,6 +348,37 @@ class HealthCheckManagerUnit {
 	}
 
 	Collection<HealthCheck> getFilteredHealthChecks(List<String> excludeChecks) {
+
+		if (excludeChecks == null) {
+			return healthChecks.values();
+		}
+
+		List<String> trimmedExcludeChecks = new ArrayList<String>();
+		for (String string : excludeChecks) {
+			trimmedExcludeChecks.add(trimToEmpty(string));
+		}
+
+		Iterator<HealthCheck> iterator = healthChecks.values().iterator();
+		List<HealthCheck> result = null;
+
+		while (iterator.hasNext()) {
+			HealthCheck healthcheck = iterator.next();
+
+			if (!trimmedExcludeChecks.contains(trimToEmpty(healthcheck
+					.getName()))) {
+				if (result == null) {
+					result = new ArrayList<HealthCheck>();
+				}
+
+				result.add(healthcheck);
+			}
+
+		}
+
+		return result;
+	}
+
+	Collection<HealthCheck> getFilteredHealthChecks(String... excludeChecks) {
 
 		if (excludeChecks == null) {
 			return healthChecks.values();

@@ -10,7 +10,7 @@ import org.apache.openejb.spi.ContainerSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JNDIUtil {
+public final class JNDIUtil {
 
 	/** the logger */
 	private static Logger log = LoggerFactory.getLogger(JNDIUtil.class
@@ -36,12 +36,15 @@ public class JNDIUtil {
 
 				} else {
 
-					if (prefix != null)
+					if (prefix != null) {
 						buffer.append(prefix + "/" + current.getName() + "("
 								+ obj.getClass() + ")\n");
-					else
+					}
+
+					else {
 						buffer.append(current.getName() + "(" + obj.getClass()
 								+ ")\n");
+					}
 				}
 
 			}
