@@ -17,7 +17,7 @@ public class HealthCheckManagerTestCase {
 	public void testGetFilteredHealthChecksList() {
 
 		Collection<HealthCheck> healthChecks = HealthCheckManager
-				.getFilteredHealthChecks(null);
+				.getFilteredHealthChecks((List) null);
 
 		assertNotNull(healthChecks);
 		assertEquals(4, healthChecks.size());
@@ -38,6 +38,28 @@ public class HealthCheckManagerTestCase {
 
 		assertNotNull(healthChecks);
 		assertEquals(2, healthChecks.size());
+
+		healthChecks = HealthCheckManager
+				.getFilteredHealthChecksList("testCheck3 ; testCheck2");
+
+		assertNotNull(healthChecks);
+		assertEquals(2, healthChecks.size());
+
+		healthChecks = HealthCheckManager.getFilteredHealthChecks(
+				"testCheck3 ", " testCheck2");
+
+		assertNotNull(healthChecks);
+		assertEquals(2, healthChecks.size());
+
+	}
+
+	@Test
+	public void testGetAllHealthChecks() {
+
+		Collection<HealthCheck> healthChecks = HealthCheckManager
+				.getAllHealthChecks();
+		assertNotNull(healthChecks);
+		assertEquals(4, healthChecks.size());
 
 	}
 

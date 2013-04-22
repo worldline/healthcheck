@@ -12,7 +12,7 @@ import com.yammer.metrics.core.HealthCheckRegistry;
  * Utility class that produce the healthCheck textual report
  * 
  */
-public class HealthCheckReport {
+public final class HealthCheckReport {
 
 	private HealthCheckReport() {
 

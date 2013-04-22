@@ -134,6 +134,9 @@ public class DatabaseCheck extends HealthCheck {
 
 		try {
 			connection = dataSource.getConnection();
+			if (connection == null) {
+				return Result.unhealthy("connection is null");
+			}
 
 			if (validationQuery == null) {
 				// use of a predefined (can be different depending on the
