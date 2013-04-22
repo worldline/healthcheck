@@ -55,9 +55,36 @@ public class SimpleHttpCheckTestCase {
 		SimpleHttpCheck check1 = new SimpleHttpCheck("ok", host, "/ok", null);
 		Assert.assertTrue(check1.execute().isHealthy());
 
-		SimpleHttpCheck check2 = new SimpleHttpCheck("ko", host, "/ko", null);
-		Assert.assertFalse(check2.execute().isHealthy());
+		// internal server error
+		testErrorCase(host, "500");
 
+		// move temporarily
+		testErrorCase(host, "302");
+
+		// move permanently
+		testErrorCase(host, "301");
+
+		// not found
+		testErrorCase(host, "404");
+
+		// forbidden
+		testErrorCase(host, "403");
+
+		// payment Required
+		testErrorCase(host, "402");
+
+		// Unauthorized
+		testErrorCase(host, "401");
+
+		// Bad Request
+		testErrorCase(host, "400");
+
+	}
+
+	private void testErrorCase(HttpHost host, String httpErrorCode) {
+		SimpleHttpCheck check = new SimpleHttpCheck("code" + httpErrorCode,
+				host, "/code" + httpErrorCode, null);
+		Assert.assertFalse(check.execute().isHealthy());
 	}
 
 	static class RequestListenerThread extends Thread {
@@ -129,9 +156,31 @@ public class SimpleHttpCheckTestCase {
 
 			if (target.endsWith("/ok")) {
 				response.setStatusCode(HttpStatus.SC_OK);
+			} else if (target.endsWith("/code302")) {
+				response.setStatusCode(HttpStatus.SC_MOVED_TEMPORARILY);
+				response.setHeader("Location", "http://localhost:"
+						+ serversocket.getLocalPort() + "/ok");
+			} else if (target.endsWith("/code301")) {
+				response.setStatusCode(HttpStatus.SC_MOVED_PERMANENTLY);
+				response.setHeader("Location", "http://localhost:"
+						+ serversocket.getLocalPort() + "/ok");
+			} else if (target.endsWith("/code401")) {
+				response.setStatusCode(HttpStatus.SC_UNAUTHORIZED);
+
+			} else if (target.endsWith("/code402")) {
+				response.setStatusCode(HttpStatus.SC_PAYMENT_REQUIRED);
+
+			} else if (target.endsWith("/code403")) {
+				response.setStatusCode(HttpStatus.SC_FORBIDDEN);
+
+			} else if (target.endsWith("/code404")) {
+				response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+
 			} else {
 				response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 			}
+
+			System.out.println(response.getStatusLine());
 		}
 
 	}
