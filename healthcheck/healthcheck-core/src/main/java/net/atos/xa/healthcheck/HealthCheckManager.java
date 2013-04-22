@@ -195,6 +195,11 @@ public class HealthCheckManager {
 
 	}
 
+	/**
+	 * Run all the registered healthchecks
+	 * 
+	 * @return true if all the results are healthy
+	 */
 	public static boolean runHealthchecks() {
 		if (managerInstance == null) {
 			createManager();
@@ -202,6 +207,12 @@ public class HealthCheckManager {
 		return managerInstance.runHealthchecks();
 	}
 
+	/**
+	 * Run all the registered healthchecks and produce a detailed report
+	 * 
+	 * @return a map with one entry per executed check. For each check, it
+	 *         indicates if it is healthy or not
+	 */
 	public static Map<String, Result> runHealthchecksWithDetailReport() {
 		if (managerInstance == null) {
 			createManager();

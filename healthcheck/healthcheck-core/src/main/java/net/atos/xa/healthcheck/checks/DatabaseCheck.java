@@ -122,7 +122,7 @@ public class DatabaseCheck extends HealthCheck {
 	@Override
 	protected Result check() throws Exception {
 
-		log.info("[HealthCheck] execute check {}", getName());
+		log.info("[HealthCheck] execute database check {}", getName());
 
 		if (dataSource == null) {
 			return Result.unhealthy("no datasource provided");

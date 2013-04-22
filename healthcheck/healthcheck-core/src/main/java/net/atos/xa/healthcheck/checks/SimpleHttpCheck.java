@@ -7,6 +7,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpRequest;
@@ -224,6 +225,9 @@ public class SimpleHttpCheck extends HealthCheck {
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					proxyHost);
 		}
+
+		httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS,
+				false);
 
 		log.info(
 				"[HealthCheck] use execute HTTP request {} on host {} through the proxy {}",
