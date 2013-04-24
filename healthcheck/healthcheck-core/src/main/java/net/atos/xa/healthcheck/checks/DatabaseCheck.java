@@ -188,21 +188,22 @@ public class DatabaseCheck extends HealthCheck {
 				try {
 					connection.close();
 				} catch (Exception e) {
-					log.error("Cannot close database connection", e);
+					log.error("[HealthCheck] Cannot close database connection",
+							e);
 				}
 			}
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (Exception e) {
-					log.error("Cannot close statement", e);
+					log.error("[HealthCheck] Cannot close statement", e);
 				}
 			}
 			if (rs != null) {
 				try {
 					rs.close();
 				} catch (Exception e) {
-					log.error("Cannot close result set", e);
+					log.error("[HealthCheck] Cannot close result set", e);
 				}
 			}
 		}
