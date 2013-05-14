@@ -33,7 +33,8 @@ import com.yammer.metrics.core.HealthCheck;
  * 
  * List of predefined queries per JDBC driver: <br/>
  * org.hsqldb.jdbcDriver = "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS"<br/>
- * oracle.jdbc.driver.OracleDriver = "select 1 from dual"<br/>
+ * oracle.jdbc.driver.OracleDriver or oracle.jdbc.OracleDriver =
+ * "select 1 from dual"<br/>
  * com.mysql.jdbc.Driver or org.gjt.mm.mysql.Driver = "select 1"<br />
  * com.ibm.db2.jcc.DB2Driver = "select 1 from sysibm.sysdummy1" <br/>
  * com.microsoft.jdbc.sqlserver.SQLServerDriver = "select 1" <br/>
@@ -50,6 +51,7 @@ public class DatabaseCheck extends HealthCheck {
 			.getName());
 
 	private static final String SELECT_1_QUERY = "select 1";
+	private static final String SELECT_1_FROM_DUAL_QUERY = "select 1 from dual";
 
 	private static final Map<String, String> PREDEFINED_VALIDATION_QUERIES;
 	static {
@@ -59,7 +61,8 @@ public class DatabaseCheck extends HealthCheck {
 				"select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		// oracle
-		aMap.put("oracle.jdbc.driver.OracleDriver", "select 1 from dual");
+		aMap.put("oracle.jdbc.driver.OracleDriver", SELECT_1_FROM_DUAL_QUERY);
+		aMap.put("oracle.jdbc.OracleDriver", SELECT_1_FROM_DUAL_QUERY);
 
 		// mysql
 		aMap.put("com.mysql.jdbc.Driver", SELECT_1_QUERY);
@@ -182,7 +185,9 @@ public class DatabaseCheck extends HealthCheck {
 		} catch (SQLException e) {
 			log.error("Cannot access database", e);
 
-			return Result.unhealthy("Cannot connect to " + getName(), e);
+			return Result.unhealthy(
+					"Cannot connect to " + getName() + " (" + e.getMessage()
+							+ ")", e);
 		} finally {
 			if (connection != null) {
 				try {
