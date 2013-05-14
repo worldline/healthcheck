@@ -10,6 +10,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>healthcheck-openejb</artifactId>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>healthcheck-openejb</name>
 
@@ -18,7 +19,7 @@
 		<dependency>
 			<groupId>net.atos.xa.healthcheck</groupId>
 			<artifactId>healthcheck-core</artifactId>
-			<version>${project.version}</version>
+			<version>[1.0,)</version>
 		</dependency>
 
 
@@ -28,6 +29,7 @@
 			<version>3.1.4.xa-3</version>
 			<scope>provided</scope>
 		</dependency>
+
 
 		<dependency>
 			<groupId>net.atos.xa</groupId>
