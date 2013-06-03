@@ -1,16 +1,13 @@
 package net.atos.xa.healthcheck.checks;
 
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.sql.DataSource;
+
+import net.atos.xa.healthcheck.util.JdbcUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,45 +47,6 @@ public class DatabaseCheck extends HealthCheck {
 	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
 			.getName());
 
-	private static final String SELECT_1_QUERY = "select 1";
-	private static final String SELECT_1_FROM_DUAL_QUERY = "select 1 from dual";
-
-	private static final Map<String, String> PREDEFINED_VALIDATION_QUERIES;
-	static {
-		Map<String, String> aMap = new HashMap<String, String>();
-		// hsqldb
-		aMap.put("org.hsqldb.jdbcDriver",
-				"select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
-
-		// oracle
-		aMap.put("oracle.jdbc.driver.OracleDriver", SELECT_1_FROM_DUAL_QUERY);
-		aMap.put("oracle.jdbc.OracleDriver", SELECT_1_FROM_DUAL_QUERY);
-
-		// mysql
-		aMap.put("com.mysql.jdbc.Driver", SELECT_1_QUERY);
-		aMap.put("org.gjt.mm.mysql.Driver", SELECT_1_QUERY);
-
-		// db2
-		aMap.put("com.ibm.db2.jcc.DB2Driver", "select 1 from sysibm.sysdummy1");
-
-		// microsoft sql
-		aMap.put("com.microsoft.jdbc.sqlserver.SQLServerDriver", SELECT_1_QUERY);
-
-		// postgresql
-		aMap.put("org.postgresql.Driver", "select version()");
-
-		// ingres
-		aMap.put("com.ingres.jdbc.IngresDriver", SELECT_1_QUERY);
-
-		// derby
-		aMap.put("org.apache.derby.jdbc.ClientDriver", "values 1");
-
-		// h2
-		aMap.put("org.h2.Driver", SELECT_1_QUERY);
-
-		PREDEFINED_VALIDATION_QUERIES = Collections.unmodifiableMap(aMap);
-	}
-
 	/** the datasource on which the test is done */
 	private DataSource dataSource;
 	/** the validation SQL query for the checking the database connection */
@@ -125,7 +83,7 @@ public class DatabaseCheck extends HealthCheck {
 	@Override
 	protected Result check() throws Exception {
 
-		log.info("[HealthCheck] execute database check {}", getName());
+		log.info("[HealthCheck] execute database check \"{}\"", getName());
 
 		if (dataSource == null) {
 			return Result.unhealthy("no datasource provided");
@@ -145,30 +103,38 @@ public class DatabaseCheck extends HealthCheck {
 				// use of a predefined (can be different depending on the
 				// database used
 				String jdbcDriverUsed = jdbcDriver;
-				if (jdbcDriverUsed == null) {
-					Driver driver = DriverManager.getDriver(connection
-							.getMetaData().getURL());
-					jdbcDriverUsed = driver.getClass().getName();
+
+				if (jdbcDriverUsed == null) { // get jdbc driver from url
+					jdbcDriverUsed = JdbcUtil
+							.identifyJdbcDriverFromUrl(connection.getMetaData()
+									.getURL());
 				}
 
-				log.debug("[HealthCheck] jdbc driver class name : {} ",
-						jdbcDriverUsed);
+				if (jdbcDriverUsed == null) { // no suitable driver found
 
-				validationQuery = PREDEFINED_VALIDATION_QUERIES
-						.get(jdbcDriverUsed);
+					// try to get a jdbc driver from the name
+					jdbcDriverUsed = JdbcUtil
+							.identifyJdbcDriverFromName(connection
+									.getMetaData().getDriverName());
+				}
+
+				if (jdbcDriverUsed != null) {
+					validationQuery = JdbcUtil
+							.getValidationQueryFromJdbcDriver(jdbcDriverUsed);
+				}
 
 				if (validationQuery == null) {
-					log.debug(
-							"[HealthCheck] predefined validation query is null, use the default {}",
-							SELECT_1_QUERY);
+					log.warn(
+							"[HealthCheck] predefined validation query is null, use the default \"{}\"",
+							JdbcUtil.SELECT_1_QUERY);
 
-					validationQuery = SELECT_1_QUERY;
+					validationQuery = JdbcUtil.SELECT_1_QUERY;
 				}
 
 			}
 
 			log.info(
-					"[HealthCheck] execute validationQuery {} on database {} with timeout {} and jdbc driver {} v{}",
+					"[HealthCheck] execute validationQuery \"{}\" on database \"{}\" with timeout {} and jdbc driver \"{} v{}\"",
 					validationQuery, connection.getMetaData().getURL(),
 					validationQueryTimeout, connection.getMetaData()
 							.getDriverName(), connection.getMetaData()
@@ -218,4 +184,5 @@ public class DatabaseCheck extends HealthCheck {
 		return Result.healthy();
 
 	}
+
 }

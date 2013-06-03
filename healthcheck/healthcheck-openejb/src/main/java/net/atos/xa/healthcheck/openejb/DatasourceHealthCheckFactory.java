@@ -3,6 +3,7 @@ package net.atos.xa.healthcheck.openejb;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Binding;
@@ -30,15 +31,15 @@ import com.yammer.metrics.core.HealthCheck;
 public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 	/** the logger */
-	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
-			.getName());
+	private static Logger log = LoggerFactory
+			.getLogger(DatasourceHealthCheckFactory.class.getName());
 
 	private static final String ROOT = "";
 
 	/**
 	 * 
 	 */
-	public List<HealthCheck> getHealthChecks() {
+	public List<HealthCheck> getHealthChecks(Map<String, String> environment) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("[HealthCheck] datasource healthcheck factory ");

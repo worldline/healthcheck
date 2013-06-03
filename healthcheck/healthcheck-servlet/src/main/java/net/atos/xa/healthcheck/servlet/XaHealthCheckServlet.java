@@ -3,6 +3,8 @@ package net.atos.xa.healthcheck.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -92,9 +94,28 @@ public class XaHealthCheckServlet extends HttpServlet {
 		}
 
 		log.info("[HealthCheck] register healthcheck");
+
+		Enumeration<String> initParameterNames = config.getInitParameterNames();
+		Map<String, String> environment = null;
+		while (initParameterNames.hasMoreElements()) {
+			String initParameterName = initParameterNames.nextElement();
+			log.info("Init param name to add {}", initParameterName);
+			if (!initParameterName.trim().equals(EXCLUDE_CHECKS)) {
+				if (environment == null) {
+					environment = new HashMap<String, String>();
+				}
+
+				log.info("Init param value to add {}",
+						config.getInitParameter(initParameterName));
+
+				environment.put(initParameterName,
+						config.getInitParameter(initParameterName));
+			}
+		}
+
 		Collection<HealthCheck> healthChecks = HealthCheckManager
-				.getFilteredHealthChecksList(config
-						.getInitParameter(EXCLUDE_CHECKS));
+				.getFilteredHealthChecksList(
+						config.getInitParameter(EXCLUDE_CHECKS), environment);
 
 		HealthCheckManager.registerHealthChecks(healthChecks);
 

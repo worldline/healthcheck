@@ -1,6 +1,7 @@
 package net.atos.xa.healthcheck.spi;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yammer.metrics.core.HealthCheck;
 
@@ -17,8 +18,13 @@ import com.yammer.metrics.core.HealthCheck;
 public interface HealthCheckFactory {
 
 	/**
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
 	 * 
 	 * @return a list of healthcheck to be checked, null in case of error
 	 */
-	List<HealthCheck> getHealthChecks();
+	List<HealthCheck> getHealthChecks(Map<String, String> environment);
 }

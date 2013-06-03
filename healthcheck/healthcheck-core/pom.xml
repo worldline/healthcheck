@@ -5,12 +5,11 @@
 	<parent>
 		<groupId>net.atos.xa.healthcheck</groupId>
 		<artifactId>healthcheck-parent</artifactId>
-		<version>1.0.1</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>healthcheck-core</artifactId>
-	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>healthcheck-core</name>
 
@@ -43,6 +42,11 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc6</artifactId>
 		</dependency>
 
 	</dependencies>
