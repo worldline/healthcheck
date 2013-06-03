@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,7 +27,24 @@ import com.yammer.metrics.core.HealthCheck.Result;
 /**
  * 
  * <p>
- * API for managing health checks
+ * API for managing health checks.
+ * 
+ * <h2>API Usage</h2>
+ * 
+ * You must first register your checks by one the registerHealthChecks methods
+ * 
+ * <pre>
+ * HealthCheckManager.registerHealthChecks(yourChecks);
+ * </pre>
+ * 
+ * Then, call one of the runHealthChecks methods to launch the checks
+ * 
+ * <pre>
+ * HealthCheckManager.runHealthchecks();
+ * </pre>
+ * 
+ * 
+ * <h2>Develop and add your own checks</h2>
  * 
  * HealthCheck manager enhances the <a href="http://metrics.codahale.com/"
  * target="_blank">Metrics framework</a> by providing a SPI mechnanism for
@@ -100,8 +118,24 @@ public class HealthCheckManager {
 	 * @return
 	 */
 	public static Collection<HealthCheck> getAllHealthChecks() {
+		return getAllHealthChecks(null);
+	}
+
+	/**
+	 * get all the availbable health checks
+	 * 
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * 
+	 * @return
+	 */
+	public static Collection<HealthCheck> getAllHealthChecks(
+			Map<String, String> environment) {
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		return managerInstance.getAllHealthChecks();
 	}
@@ -115,8 +149,25 @@ public class HealthCheckManager {
 	 */
 	public static Collection<HealthCheck> getFilteredHealthChecks(
 			List<String> excludeChecks) {
+		return getFilteredHealthChecks(excludeChecks, null);
+	}
+
+	/**
+	 * Find all the available healthcheck except those mentionned in parameter
+	 * 
+	 * @param excludeChecks
+	 *            a list of healthcheck names to exclude from the list
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * @return
+	 */
+	public static Collection<HealthCheck> getFilteredHealthChecks(
+			List<String> excludeChecks, Map<String, String> environment) {
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		return managerInstance.getFilteredHealthChecks(excludeChecks);
 	}
@@ -130,8 +181,26 @@ public class HealthCheckManager {
 	 */
 	public static Collection<HealthCheck> getFilteredHealthChecks(
 			String... excludeChecks) {
+		return getFilteredHealthChecks(null, excludeChecks);
+	}
+
+	/**
+	 * Find all the available healthcheck except those mentionned in parameter
+	 * 
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * @param excludeChecks
+	 *            an array of healthcheck names to exclude from the list
+	 * 
+	 * @return
+	 */
+	public static Collection<HealthCheck> getFilteredHealthChecks(
+			Map<String, String> environment, String... excludeChecks) {
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		return managerInstance.getFilteredHealthChecks(excludeChecks);
 	}
@@ -156,8 +225,38 @@ public class HealthCheckManager {
 	public static Collection<HealthCheck> getFilteredHealthChecksList(
 			String excludeHealthChecks) {
 
+		return getFilteredHealthChecksList(excludeHealthChecks, null);
+
+	}
+
+	/**
+	 * get a list of healthcheck <br/>
+	 * 
+	 * Example, if we have the following healthchecks with the names: "check1",
+	 * "check2" and "check3".<br/>
+	 * A call to getFilteredHealthChecksList("check2;check3") will return only
+	 * the "check1" healthcheck<br/>
+	 * <br/>
+	 * 
+	 * Implementations of healthcheck are retrieved thanks to SPI mechanism. @see
+	 * {@link java.util.ServiceLoader}
+	 * 
+	 * @param excludeHealthChecks
+	 *            list of excluded healthchecks (list of names separated by a
+	 *            semicolon
+	 * 
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * @return
+	 */
+	public static Collection<HealthCheck> getFilteredHealthChecksList(
+			String excludeHealthChecks, Map<String, String> environment) {
+
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		return managerInstance.getFilteredHealthChecksList(excludeHealthChecks);
 
@@ -169,19 +268,51 @@ public class HealthCheckManager {
 	 * 
 	 */
 	public static void registerAllHealthChecks() {
-		registerHealthChecks(getAllHealthChecks());
+		registerAllHealthChecks(null);
 	}
 
 	/**
 	 * register all the available healthchecks into the {@link HealthChecks}
-	 * except those mentionned in parameter class.
+	 * class.
+	 * 
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * 
+	 */
+	public static void registerAllHealthChecks(Map<String, String> environment) {
+		registerHealthChecks(getAllHealthChecks(environment));
+	}
+
+	/**
+	 * register all the available healthchecks into the {@link HealthChecks}
+	 * except those mentionned in parameter.
 	 * 
 	 * @param excludeChecks
 	 *            a list of healthcheck names to exclude for the registration
 	 * 
 	 */
 	public static void registerFilteredHealthChecks(List<String> excludeChecks) {
-		registerHealthChecks(getFilteredHealthChecks(excludeChecks));
+		registerFilteredHealthChecks(excludeChecks, null);
+	}
+
+	/**
+	 * register all the available healthchecks into the {@link HealthChecks}
+	 * except those mentionned in parameter.
+	 * 
+	 * @param excludeChecks
+	 *            a list of healthcheck names to exclude for the registration
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 */
+	public static void registerFilteredHealthChecks(List<String> excludeChecks,
+			Map<String, String> environment) {
+		registerHealthChecks(getFilteredHealthChecks(excludeChecks, environment));
 	}
 
 	/**
@@ -190,8 +321,25 @@ public class HealthCheckManager {
 	 * @param healthChecks
 	 */
 	public static void registerHealthChecks(Collection<HealthCheck> healthChecks) {
+		registerHealthChecks(healthChecks, null);
+
+	}
+
+	/**
+	 * register the healthchecks into the {@link HealthChecks} class.
+	 * 
+	 * @param healthChecks
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 */
+	public static void registerHealthChecks(
+			Collection<HealthCheck> healthChecks,
+			Map<String, String> environment) {
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		managerInstance.registerHealthChecks(healthChecks);
 
@@ -203,15 +351,32 @@ public class HealthCheckManager {
 	 * @param healthChecks
 	 */
 	public static void registerHealthChecks(HealthCheck... healthChecks) {
+		registerHealthChecks(null, healthChecks);
+
+	}
+
+	/**
+	 * register the healthchecks into the {@link HealthChecks} class.
+	 * 
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
+	 * @param healthChecks
+	 */
+	public static void registerHealthChecks(Map<String, String> environment,
+			HealthCheck... healthChecks) {
 		if (managerInstance == null) {
-			createManager();
+			createManager(environment);
 		}
 		managerInstance.registerHealthChecks(healthChecks);
 
 	}
 
 	/**
-	 * Run all the registered healthchecks
+	 * Run all the registered healthchecks<br>
+	 * You must register your checks before running the checks
 	 * 
 	 * @return true if all the results are healthy
 	 */
@@ -240,11 +405,20 @@ public class HealthCheckManager {
 	 * 
 	 */
 	private static HealthCheckManagerUnit createManager() {
+		return createManager(null);
+	}
+
+	/**
+	 * Create our HealthCheckLocatorUnit instance
+	 * 
+	 */
+	private static HealthCheckManagerUnit createManager(
+			Map<String, String> environment) {
 		// double check locking to be thread safe
 		try {
 			initializationLock.lock();
 			if (managerInstance == null) {
-				managerInstance = new HealthCheckManagerUnit();
+				managerInstance = new HealthCheckManagerUnit(environment);
 			}
 		} finally {
 			initializationLock.unlock();
@@ -267,22 +441,47 @@ class HealthCheckManagerUnit {
 	 * 
 	 */
 	public HealthCheckManagerUnit() {
-		init();
+		init(null);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 */
+	public HealthCheckManagerUnit(Map<String, String> environment) {
+		init(environment);
 	}
 
 	/**
 	 * Initialization method
 	 * 
-	 * @param initialData
+	 * @param environment
+	 *            environment variable used for the setup of the checks <br>
+	 *            This is an optional option, it depends on the checks you use.
+	 *            Please consult the javadoc of the checks you use for details
+	 *            about the possible variable environments
 	 */
-	protected void init() {
+	protected void init(Map<String, String> environment) {
 
 		ClassLoader classLoader = this.getClass().getClassLoader();
 
 		if (log.isDebugEnabled()) {
+
+			StringBuffer buffer = new StringBuffer();
+			if (environment != null) {
+				Set<String> keys = environment.keySet();
+				for (String key : keys) {
+					buffer.append("key " + key + " : " + environment.get(key)
+							+ "\n");
+				}
+			} else {
+				buffer.append("environment is null");
+			}
+
 			log.debug(
-					"[HealthCheck] init healthcheck locator (classloader : {} )",
+					"[HealthCheck] init healthcheck locator (classloader : {} ) with environment",
 					classLoader.getClass());
+			log.debug(buffer.toString());
 
 			try {
 				Enumeration<URL> urls = classLoader
@@ -311,7 +510,6 @@ class HealthCheckManagerUnit {
 				// do nothing
 				log.debug("[HealthCheck] error when getting resources", e);
 			}
-
 		}
 
 		ServiceLoader<HealthCheck> serviceLoader = ServiceLoader.load(
@@ -330,8 +528,10 @@ class HealthCheckManagerUnit {
 				.iterator();
 		while (iteratorFactory.hasNext()) {
 			HealthCheckFactory factory = iteratorFactory.next();
-			if (factory.getHealthChecks() != null) {
-				for (HealthCheck check : factory.getHealthChecks()) {
+			List<HealthCheck> healthchecks = factory
+					.getHealthChecks(environment);
+			if (healthchecks != null) {
+				for (HealthCheck check : healthchecks) {
 					log.debug(
 							"[HealthCheck] found a check {} (classname : {}) given by the healthcheck factory {}",
 							check.getName(), check.getClass(),

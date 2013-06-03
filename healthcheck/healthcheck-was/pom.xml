@@ -9,9 +9,9 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>healthcheck-openejb</artifactId>
+	<artifactId>healthcheck-was</artifactId>
 	<packaging>jar</packaging>
-	<name>healthcheck-openejb</name>
+	<name>healthcheck-was</name>
 
 	<dependencies>
 
@@ -22,21 +22,14 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>openejb-core</artifactId>
-			<version>3.1.4.xa-3</version>
-			<scope>provided</scope>
-		</dependency>
+	<dependency>
+	<groupId>javax.jee</groupId>
+	<artifactId>jee</artifactId>
+	<version>1.5</version>
+	<scope>provided</scope>
+</dependency>
 
 
-		<dependency>
-			<groupId>net.atos.xa</groupId>
-			<artifactId>hibernate-dependencies</artifactId>
-			<version>3.2.7.xa-1</version>
-			<type>pom</type>
-			<scope>provided</scope>
-		</dependency>
 
 	</dependencies>
 </project>

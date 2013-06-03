@@ -22,7 +22,7 @@ public class DatasourceHealthCheckFactoryTestCase {
 	public void testGetHealthChecks() {
 
 		DatasourceHealthCheckFactory factory = new DatasourceHealthCheckFactory();
-		List<HealthCheck> healthChecks = factory.getHealthChecks();
+		List<HealthCheck> healthChecks = factory.getHealthChecks(null);
 		Assert.assertNotNull(healthChecks);
 		Assert.assertEquals(3, healthChecks.size());
 
