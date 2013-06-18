@@ -382,11 +382,11 @@ public class HealthCheckManager {
 	 * @return a map with one entry per executed check. For each check, it
 	 *         indicates if it is healthy or not
 	 */
-	public static Map<String, Result> runHealthchecksWithDetailReport() {
+	public static Map<String, Result> runHealthchecksWithDetailedReport() {
 		if (managerInstance == null) {
 			createManager();
 		}
-		return managerInstance.runHealthchecksWithDetailReport();
+		return managerInstance.runHealthchecksWithDetailedReport();
 	}
 
 	/**

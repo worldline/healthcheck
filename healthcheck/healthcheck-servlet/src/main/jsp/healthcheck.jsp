@@ -1,8 +1,6 @@
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="com.yammer.metrics.core.HealthCheck" %>
-<%@ page import="com.yammer.metrics.core.HealthCheckRegistry" %>
-<%@ page import="com.yammer.metrics.HealthChecks" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="net.atos.xa.healthcheck.HealthCheckReport" %>
 <%@ page import="net.atos.xa.healthcheck.HealthCheckManager" %>
@@ -13,7 +11,7 @@
 HealthCheckRegistry registry = null;
 
 public void jspInit(){
-	registry =  HealthChecks.defaultRegistry();
+	
 	
 	/*
 	* list of excluded healthchecks (list of names separated by a semicolon)
@@ -34,8 +32,8 @@ public void jspInit(){
 <%
 	long start = System.currentTimeMillis();
 
-	final Map<String, HealthCheck.Result> results = registry
-		.runHealthChecks();
+	final Map<String, HealthCheck.Result> results = HealthCheckManager
+		.runHealthchecksWithDetailedReport();
 
 	response.setContentType("text/plain");
 	response.setHeader("Cache-Control", "must-revalidate,no-cache,no-store");
