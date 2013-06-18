@@ -8,8 +8,6 @@
 
 <%!
 
-HealthCheckRegistry registry = null;
-
 public void jspInit(){
 	
 	
@@ -63,7 +61,7 @@ public void jspInit(){
 		}
 	}
 
-	HealthCheckReport.produceReport(registry, response.getWriter());
+	HealthCheckReport.produceReport(response.getWriter(), results);
 
 	writer.format("\nTotal execution time : %s ms \n",
 			System.currentTimeMillis() - start);
