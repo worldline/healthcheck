@@ -2,4 +2,6 @@ target
 .settings
 .settings/
 .project
+.idea
 .classpath
+/healthcheck-parent.iml
