@@ -19,7 +19,6 @@ import net.atos.xa.healthcheck.HealthCheckReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yammer.metrics.HealthChecks;
 import com.yammer.metrics.core.HealthCheck;
 import com.yammer.metrics.core.HealthCheckRegistry;
 
@@ -59,27 +58,6 @@ public class XaHealthCheckServlet extends HttpServlet {
 			.getName() + ".registry";
 	private static final String CONTENT_TYPE = "text/plain";
 
-	private HealthCheckRegistry registry;
-
-	/**
-	 * Creates a new {@link HealthCheckServlet} with the given
-	 * {@link HealthCheckRegistry}.
-	 * 
-	 * @param registry
-	 *            a {@link HealthCheckRegistry}
-	 */
-	public XaHealthCheckServlet(HealthCheckRegistry registry) {
-		this.registry = registry;
-	}
-
-	/**
-	 * Creates a new {@link HealthCheckServlet} with the default
-	 * {@link HealthCheckRegistry}.
-	 */
-	public XaHealthCheckServlet() {
-		this(HealthChecks.defaultRegistry());
-	}
-
 	/**
 	 * 
 	 */
@@ -87,11 +65,6 @@ public class XaHealthCheckServlet extends HttpServlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		final Object o = config.getServletContext().getAttribute(
-				REGISTRY_ATTRIBUTE);
-		if (o instanceof HealthCheckRegistry) {
-			this.registry = (HealthCheckRegistry) o;
-		}
 
 		log.info("[HealthCheck] register healthcheck");
 
@@ -129,28 +102,52 @@ public class XaHealthCheckServlet extends HttpServlet {
 
 		long start = System.currentTimeMillis();
 
-		final Map<String, HealthCheck.Result> results = registry
-				.runHealthChecks();
 		resp.setContentType(CONTENT_TYPE);
 		resp.setHeader("Cache-Control", "must-revalidate,no-cache,no-store");
 		final PrintWriter writer = resp.getWriter();
 
-		writer.format("Server host: %s (%s)\n", req.getLocalName(),
-				req.getLocalAddr());
-		writer.format("Client host: %s (%s)\n\n", req.getRemoteHost(),
-				req.getRemoteAddr());
+		if (req.getRequestURI().endsWith("/deactivateChecks")) {
 
-		if (results.isEmpty()) {
-			resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-		} else {
-			if (isAllHealthy(results)) {
-				resp.setStatus(HttpServletResponse.SC_OK);
-			} else {
-				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			// deactivate the register checks
+			HealthCheckManager.deactivateAllChecks();
+			writer.println("All checks are deactivated");
+		} else if (req.getRequestURI().endsWith("/activateChecks")) {
+
+			Collection<HealthCheck> healthChecks = HealthCheckManager
+					.getFilteredHealthChecksList(req.getSession()
+							.getServletContext()
+							.getInitParameter(EXCLUDE_CHECKS));
+
+			if (healthChecks != null) {
+				for (HealthCheck healthCheck : healthChecks) {
+					HealthCheckManager.activateCheck(healthCheck.getName());
+				}
 			}
-		}
 
-		HealthCheckReport.produceReport(registry, resp.getWriter());
+			writer.println("All checks are activated");
+
+		} else {
+			final Map<String, HealthCheck.Result> results = HealthCheckManager
+					.runHealthchecksWithDetailedReport();
+
+			writer.format("Server host: %s (%s)\n", req.getLocalName(),
+					req.getLocalAddr());
+			writer.format("Client host: %s (%s)\n\n", req.getRemoteHost(),
+					req.getRemoteAddr());
+
+			if (results.isEmpty()) {
+				resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+			} else {
+				if (isAllHealthy(results)) {
+					resp.setStatus(HttpServletResponse.SC_OK);
+				} else {
+					resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				}
+			}
+
+			HealthCheckReport.produceReport(writer, results);
+
+		}
 
 		writer.format("\nTotal execution time : %s ms \n",
 				System.currentTimeMillis() - start);

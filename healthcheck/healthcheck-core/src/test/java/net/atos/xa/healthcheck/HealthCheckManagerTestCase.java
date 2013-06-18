@@ -166,7 +166,7 @@ public class HealthCheckManagerTestCase {
 			int numberOfExpectedResults) {
 
 		Map<String, Result> results = HealthCheckManager
-				.runHealthchecksWithDetailReport();
+				.runHealthchecksWithDetailedReport();
 
 		assertNotNull(results);
 		assertEquals(numberOfExpectedResults, results.size());

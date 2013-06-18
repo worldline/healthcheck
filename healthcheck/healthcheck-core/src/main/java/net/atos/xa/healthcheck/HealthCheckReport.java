@@ -33,6 +33,35 @@ public final class HealthCheckReport {
 		final Map<String, HealthCheck.Result> results = registry
 				.runHealthChecks();
 
+		produceReport(writer, results);
+
+	}
+
+	/**
+	 * Produce a textual report for the healthcheck
+	 * 
+	 * @param writer
+	 *            the writer
+	 */
+	public static void produceReport(final PrintWriter writer) {
+
+		final Map<String, HealthCheck.Result> results = HealthCheckManager
+				.runHealthchecksWithDetailedReport();
+
+		produceReport(writer, results);
+	}
+
+	/**
+	 * Produce a textual report for the healthcheck
+	 * 
+	 * @param writer
+	 *            the writer
+	 * @param results
+	 *            the results
+	 */
+	public static void produceReport(final PrintWriter writer,
+			final Map<String, HealthCheck.Result> results) {
+
 		if (results.isEmpty()) {
 			writer.println("! No health checks registered.");
 		} else {
@@ -63,7 +92,5 @@ public final class HealthCheckReport {
 				}
 			}
 		}
-
 	}
-
 }
