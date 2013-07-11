@@ -2,6 +2,7 @@ package net.atos.xa.healthcheck;
 
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.yammer.metrics.core.HealthCheck;
@@ -33,7 +34,13 @@ public final class HealthCheckReport {
 		final Map<String, HealthCheck.Result> results = registry
 				.runHealthChecks();
 
-		produceReport(writer, results);
+		final Map<String, HealthCheckResult> healthcheckResults = new HashMap<String, HealthCheckResult>();
+		for (String key : results.keySet()) {
+			healthcheckResults.put(key, new HealthCheckResult(results.get(key),
+					-1));
+		}
+
+		produceReport(writer, healthcheckResults);
 
 	}
 
@@ -45,7 +52,7 @@ public final class HealthCheckReport {
 	 */
 	public static void produceReport(final PrintWriter writer) {
 
-		final Map<String, HealthCheck.Result> results = HealthCheckManager
+		final Map<String, HealthCheckResult> results = HealthCheckManager
 				.runHealthchecksWithDetailedReport();
 
 		produceReport(writer, results);
@@ -60,25 +67,29 @@ public final class HealthCheckReport {
 	 *            the results
 	 */
 	public static void produceReport(final PrintWriter writer,
-			final Map<String, HealthCheck.Result> results) {
+			final Map<String, HealthCheckResult> results) {
 
 		if (results.isEmpty()) {
 			writer.println("! No health checks registered.");
 		} else {
-			for (Map.Entry<String, HealthCheck.Result> entry : results
+			for (Map.Entry<String, HealthCheckResult> entry : results
 					.entrySet()) {
-				final HealthCheck.Result result = entry.getValue();
+				final HealthCheckResult result = entry.getValue();
 				if (result.isHealthy()) {
 					if (result.getMessage() != null) {
-						writer.format("* %s=OK (executed at %s)\n  %s\n",
-								entry.getKey(), new Date(), result.getMessage());
+						writer.format(
+								"* %s=OK (executed at %s) in %sms\n  %s\n",
+								entry.getKey(), new Date(),
+								result.getExecutionTime(), result.getMessage());
 					} else {
-						writer.format("* %s=OK (executed at %s)\n",
-								entry.getKey(), new Date());
+						writer.format("* %s=OK (executed at %s) in %sms\n",
+								entry.getKey(), new Date(),
+								result.getExecutionTime());
 					}
 				} else {
 					if (result.getMessage() != null) {
-						writer.format("! %s=ERROR\n!  %s\n", entry.getKey(),
+						writer.format("! %s=ERROR in  %sms\n!  %s\n",
+								entry.getKey(), result.getExecutionTime(),
 								result.getMessage());
 					}
 

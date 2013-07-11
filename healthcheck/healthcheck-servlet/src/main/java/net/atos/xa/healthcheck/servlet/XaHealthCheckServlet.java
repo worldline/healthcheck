@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.atos.xa.healthcheck.HealthCheckManager;
 import net.atos.xa.healthcheck.HealthCheckReport;
+import net.atos.xa.healthcheck.HealthCheckResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +128,7 @@ public class XaHealthCheckServlet extends HttpServlet {
 			writer.println("All checks are activated");
 
 		} else {
-			final Map<String, HealthCheck.Result> results = HealthCheckManager
+			final Map<String, HealthCheckResult> results = HealthCheckManager
 					.runHealthchecksWithDetailedReport();
 
 			writer.format("Server host: %s (%s)\n", req.getLocalName(),
@@ -154,8 +155,8 @@ public class XaHealthCheckServlet extends HttpServlet {
 		writer.close();
 	}
 
-	private static boolean isAllHealthy(Map<String, HealthCheck.Result> results) {
-		for (HealthCheck.Result result : results.values()) {
+	private static boolean isAllHealthy(Map<String, HealthCheckResult> results) {
+		for (HealthCheckResult result : results.values()) {
 			if (!result.isHealthy()) {
 				return false;
 			}

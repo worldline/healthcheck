@@ -89,7 +89,7 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 			}
 
 		} catch (NamingException e) {
-			log.error(e.getMessage(), e);
+			log.error("[HealthCheck] " + e.getMessage(), e);
 			return null;
 		}
 
@@ -101,7 +101,6 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 
 			for (DatasourceWrapper datasourceWrapper : dataSourceToAdd) {
 				// no support of validation query timeout with openEJB 3.1
-
 				result.add(new DatabaseCheck(datasourceWrapper.getName(),
 						datasourceWrapper.getDatasource(), datasourceWrapper
 								.getDatasource().getValidationQuery(),

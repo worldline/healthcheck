@@ -40,6 +40,35 @@ import com.yammer.metrics.core.HealthCheck;
  * org.apache.derby.jdbc.ClientDriver = "values 1"<br/>
  * org.h2.Driver = "select 1"<br/>
  * 
+ * 
+ * <p>
+ * 
+ * <h2>Timeout management</h2>
+ * 
+ * Be careful to the timeout configuration! With a wrong timeout configuration
+ * or if you keep the default configuration, the database check is blocked until
+ * it gets a response from the database. This leads to an unefficient
+ * monitoring.
+ * 
+ * Two timeout can be configured:
+ * <ul>
+ * <li><b>login timeout</b> : configured at the datasource level. Maximum time
+ * in seconds that a data source will wait while attempting to connect to a
+ * database. A value of zero specifies that the timeout is the default system
+ * timeout if there is one; otherwise, it specifies that there is no timeout.</li>
+ * <li><b>validation query timeout</b> : the validation query timeout in seconds
+ * (if timeout is exceeded, the check fails)</li>
+ * </ul>
+ * 
+ * You may have different configuration for timeout depending on the JDBC driver
+ * you use.
+ * 
+ * Example in MySQL driver, you can configure a connection timeout and a socket
+ * timeout
+ * 
+ * </p>
+ * 
+ * 
  */
 public class DatabaseCheck extends HealthCheck {
 
@@ -47,11 +76,17 @@ public class DatabaseCheck extends HealthCheck {
 	private static Logger log = LoggerFactory.getLogger(DatabaseCheck.class
 			.getName());
 
-	/** the datasource on which the test is done */
+	/**
+	 * the datasource on which the test is done. As a precondition, we consider
+	 * that the login timeout is set up in this datasource
+	 */
 	private DataSource dataSource;
 	/** the validation SQL query for the checking the database connection */
 	private String validationQuery;
-	/** the validation query timeout (if timeout is exceeded, the check fails) */
+	/**
+	 * the validation query timeout in seconds (if timeout is exceeded, the
+	 * check fails)
+	 */
 	private int validationQueryTimeout;
 
 	/** the classname of the jdbc driver */
@@ -62,13 +97,14 @@ public class DatabaseCheck extends HealthCheck {
 	 * @param name
 	 *            a name for this health check
 	 * @param dataSource
-	 *            on which the test is done
+	 *            on which the test is done. As a precondition, we consider that
+	 *            login timeout is set up in this datasource
 	 * @param validationQuery
 	 *            SQL query for the checking the database connection, if null a
 	 *            default SQL query is selected among some predefined ones
 	 * @param validationQueryTimeout
-	 *            validation query timeout , if timeout is exceeded, the check
-	 *            fails
+	 *            validation query timeout in seconds , if timeout is exceeded,
+	 *            the check fails
 	 */
 	public DatabaseCheck(String name, DataSource dataSource,
 			String validationQuery, String jdbcDriver,
@@ -78,6 +114,7 @@ public class DatabaseCheck extends HealthCheck {
 		this.validationQuery = validationQuery;
 		this.validationQueryTimeout = validationQueryTimeout;
 		this.jdbcDriver = jdbcDriver;
+
 	}
 
 	@Override
@@ -86,7 +123,7 @@ public class DatabaseCheck extends HealthCheck {
 		log.info("[HealthCheck] execute database check \"{}\"", getName());
 
 		if (dataSource == null) {
-			return Result.unhealthy("no datasource provided");
+			return Result.unhealthy("no datasource found");
 		}
 
 		Connection connection = null;
