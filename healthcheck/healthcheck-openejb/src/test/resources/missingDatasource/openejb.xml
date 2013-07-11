@@ -173,6 +173,20 @@
   MaxOpenPreparedStatements 128
 </Resource>
 
+
+<Resource id="xastory-cc-commonobjectsDS" type="DataSource">
+  JdbcDriver com.mysql.jdbc.Driver
+  JdbcUrl jdbc:mysql://localhost:3307/xastory_cc
+  UserName xastory-cc
+  Password xastory-cc
+  JtaManaged true
+  InitialSize 3
+  MaxActive 5
+  TestOnBorrow true
+  PoolPreparedStatements true
+  MaxOpenPreparedStatements 128
+</Resource>s
+
 <!--
 #
 #  The <Deployments> element can be used to configure file

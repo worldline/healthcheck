@@ -275,11 +275,14 @@ class CustomHealthCheckRegistry {
 	 * 
 	 * @return a map of the health check results
 	 */
-	SortedMap<String, Result> runHealthchecksWithDetailedReport() {
-		final SortedMap<String, Result> results = new TreeMap<String, Result>();
+	SortedMap<String, HealthCheckResult> runHealthchecksWithDetailedReport() {
+		final SortedMap<String, HealthCheckResult> results = new TreeMap<String, HealthCheckResult>();
 		for (Entry<String, HealthCheck> entry : registerHealthChecks.entrySet()) {
+			long startTime = System.currentTimeMillis();
 			final Result result = entry.getValue().execute();
-			results.put(entry.getKey(), result);
+			results.put(entry.getKey(),
+					new HealthCheckResult(result, System.currentTimeMillis()
+							- startTime));
 		}
 		return Collections.unmodifiableSortedMap(results);
 	}
@@ -344,8 +347,8 @@ class CustomHealthCheckRegistry {
 		return str == null ? "" : str.trim();
 	}
 
-	private boolean isAllHealthy(Map<String, HealthCheck.Result> results) {
-		for (HealthCheck.Result result : results.values()) {
+	private boolean isAllHealthy(Map<String, HealthCheckResult> results) {
+		for (HealthCheckResult result : results.values()) {
 			if (!result.isHealthy()) {
 				return false;
 			}

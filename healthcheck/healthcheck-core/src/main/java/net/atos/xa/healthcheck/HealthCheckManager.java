@@ -11,7 +11,6 @@ import net.atos.xa.healthcheck.spi.HealthCheckFactory;
 
 import com.yammer.metrics.HealthChecks;
 import com.yammer.metrics.core.HealthCheck;
-import com.yammer.metrics.core.HealthCheck.Result;
 
 /**
  * 
@@ -382,7 +381,7 @@ public class HealthCheckManager {
 	 * @return a map with one entry per executed check. For each check, it
 	 *         indicates if it is healthy or not
 	 */
-	public static Map<String, Result> runHealthchecksWithDetailedReport() {
+	public static Map<String, HealthCheckResult> runHealthchecksWithDetailedReport() {
 		if (managerInstance == null) {
 			createManager();
 		}

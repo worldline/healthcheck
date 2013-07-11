@@ -12,7 +12,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.yammer.metrics.core.HealthCheck;
-import com.yammer.metrics.core.HealthCheck.Result;
 
 public class HealthCheckManagerTestCase {
 
@@ -72,7 +71,7 @@ public class HealthCheckManagerTestCase {
 		HealthCheckManager.deactivateAllChecks();
 
 		HealthCheckManager.registerAllHealthChecks();
-		Map<String, Result> results = testRunWithNumberOfExpectedResults(4);
+		Map<String, HealthCheckResult> results = testRunWithNumberOfExpectedResults(4);
 
 		// nothing should happen
 		HealthCheckManager.deactivateCheck(null);
@@ -95,7 +94,7 @@ public class HealthCheckManagerTestCase {
 		HealthCheckManager.deactivateAllChecks();
 
 		HealthCheckManager.registerAllHealthChecks();
-		Map<String, Result> results = testRunWithNumberOfExpectedResults(4);
+		Map<String, HealthCheckResult> results = testRunWithNumberOfExpectedResults(4);
 
 		// nothing should happen
 		HealthCheckManager.deactivateChecks((String[]) null);
@@ -121,7 +120,7 @@ public class HealthCheckManagerTestCase {
 		Collection<HealthCheck> healthChecks = HealthCheckManager
 				.getFilteredHealthChecks("testCheck3 ", " testCheck2");
 		HealthCheckManager.registerHealthChecks(healthChecks);
-		Map<String, Result> results = testRunWithNumberOfExpectedResults(2);
+		Map<String, HealthCheckResult> results = testRunWithNumberOfExpectedResults(2);
 
 		// nothing should happen
 		HealthCheckManager.activateCheck(null);
@@ -145,7 +144,7 @@ public class HealthCheckManagerTestCase {
 		Collection<HealthCheck> healthChecks = HealthCheckManager
 				.getFilteredHealthChecks("testCheck3 ", " testCheck2");
 		HealthCheckManager.registerHealthChecks(healthChecks);
-		Map<String, Result> results = testRunWithNumberOfExpectedResults(2);
+		Map<String, HealthCheckResult> results = testRunWithNumberOfExpectedResults(2);
 
 		// nothing should happen
 		HealthCheckManager.activateChecks((String[]) null);
@@ -162,10 +161,10 @@ public class HealthCheckManagerTestCase {
 
 	}
 
-	private Map<String, Result> testRunWithNumberOfExpectedResults(
+	private Map<String, HealthCheckResult> testRunWithNumberOfExpectedResults(
 			int numberOfExpectedResults) {
 
-		Map<String, Result> results = HealthCheckManager
+		Map<String, HealthCheckResult> results = HealthCheckManager
 				.runHealthchecksWithDetailedReport();
 
 		assertNotNull(results);

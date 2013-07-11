@@ -1,6 +1,5 @@
 package net.atos.xa.healthcheck.was;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -30,7 +29,8 @@ import com.yammer.metrics.core.HealthCheck;
  * <ul>
  * <li>wasCheck.jdbcDatasources : a list of JNDI names of the datasource you
  * want to check</li>
- * 
+ * <li>wasCheck.jdbcTimeout : validation query timeout in seconds (if timeout is
+ * exceeded, the check fails)</li>
  * </ul>
  * 
  * if you use healthcheck servlet, this environment variables are set up in the
@@ -44,6 +44,8 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 			.getLogger(DatasourceHealthCheckFactory.class.getName());
 
 	private static final String JDBC_DATASOURCE_LIST_KEY = "wasCheck.jdbcDatasources";
+
+	private static final String JDBC_QUERY_TIMEOUT = "wasCheck.jdbcQueryTimeout";
 
 	/**
 	 * @param environment
@@ -76,9 +78,9 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 		if (environment != null
 				&& environment.get(JDBC_DATASOURCE_LIST_KEY) != null) {
 
+			int queryTimeout = getTimeout(environment, JDBC_QUERY_TIMEOUT);
+
 			Hashtable<String, String> env = new Hashtable<String, String>();
-			// env.put("java.naming.factory.initial",
-			// "com.ibm.websphere.naming.WsnInitialContextFactory");
 
 			InitialContext context = null;
 			try {
@@ -105,7 +107,8 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 						healthchecks = new ArrayList<HealthCheck>();
 					}
 
-					HealthCheck check = getHealthCheck(context, jndiName);
+					HealthCheck check = getHealthCheck(context, jndiName,
+							queryTimeout);
 
 					if (check != null) {
 						healthchecks.add(check);
@@ -119,39 +122,38 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 		return healthchecks;
 	}
 
-	private HealthCheck getHealthCheck(Context context, String jndi) {
+	private HealthCheck getHealthCheck(Context context, String jndi,
+			int queryTimeout) {
 
 		log.debug("[HealthCheck] create database check for jndi name {}", jndi);
 
 		try {
 			DataSource ds = (DataSource) context.lookup(jndi);
 
-			if (ds.getClass().getName()
-					.equals("com.ibm.ws.rsadapter.jdbc.WSJdbcDataSource")) {
-
-			}
-
-			return new DatabaseCheck("databaseCheck " + jndi, ds, null, null,
-					-1);
+			return new DatabaseCheck(jndi, ds, null, null, queryTimeout);
 
 		} catch (NamingException e) {
 			log.warn("[HealthCheck] the JNDI name " + jndi + " cannot be found");
-			return null;
+			return new DatabaseCheck(jndi, null, null, null, queryTimeout);
 		}
 
 	}
 
-	private Object invokeMethodWithoutParams(Object object, String methodName) {
-		try {
-
-			Method methodGetContextID = object.getClass().getDeclaredMethod(
-					methodName);
-			return methodGetContextID.invoke(object);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+	private int getTimeout(Map<String, String> environment, String key) {
+		int timeout = 0;
+		String timeOutString = (environment.get(key) != null) ? environment
+				.get(key).trim() : null;
+		if (timeOutString != null && !timeOutString.isEmpty()) {
+			try {
+				timeout = Integer.parseInt(timeOutString);
+			} catch (NumberFormatException e) {
+				log.error(
+						"[HealthCheck] error when parsing the \"{}\" variable (value found \"{}\") - use timeout {}",
+						key, timeOutString, timeout);
+			}
 		}
+
+		return timeout;
 	}
 
 }

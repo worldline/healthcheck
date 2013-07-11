@@ -1,10 +1,11 @@
+<%@page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="com.yammer.metrics.core.HealthCheck" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="net.atos.xa.healthcheck.HealthCheckReport" %>
 <%@ page import="net.atos.xa.healthcheck.HealthCheckManager" %>
-
+<%@ page import="net.atos.xa.healthcheck.HealthCheckResult" %>
 
 <%!
 
@@ -18,8 +19,12 @@ public void jspInit(){
 	* A call to getFilteredHealthChecksList("check2;check3") will return only
 	* the "check1" healthcheck<br/>
 	*/
+	
+	Map<String, String> environment = new HashMap<String, String>();
+	environment.put("wasCheck.jdbcDatasources", "jdbc/WLP_COM;jdbc/WLP_CAS");
+	environment.put("wasCheck.jdbcTimeout", "1");
 	Collection<HealthCheck> healthChecks = HealthCheckManager
-			.getFilteredHealthChecksList(null);
+			.getAllHealthChecks();
 
 	HealthCheckManager.registerHealthChecks(healthChecks);
 	
@@ -30,7 +35,7 @@ public void jspInit(){
 <%
 	long start = System.currentTimeMillis();
 
-	final Map<String, HealthCheck.Result> results = HealthCheckManager
+	final Map<String, HealthCheckResult> results = HealthCheckManager
 		.runHealthchecksWithDetailedReport();
 
 	response.setContentType("text/plain");
@@ -48,7 +53,7 @@ public void jspInit(){
 	} else {
 		
 		boolean allOk = true;
-		for (HealthCheck.Result result : results.values()) {
+		for (HealthCheckResult result : results.values()) {
 			if (!result.isHealthy()) {
 				allOk =  false;
 			}
