@@ -73,13 +73,14 @@ public class XaHealthCheckServlet extends HttpServlet {
 		Map<String, String> environment = null;
 		while (initParameterNames.hasMoreElements()) {
 			String initParameterName = initParameterNames.nextElement();
-			log.info("Init param name to add {}", initParameterName);
+
 			if (!initParameterName.trim().equals(EXCLUDE_CHECKS)) {
 				if (environment == null) {
 					environment = new HashMap<String, String>();
 				}
 
-				log.info("Init param value to add {}",
+				log.info("Init param-name={} and param-value={}",
+						initParameterName,
 						config.getInitParameter(initParameterName));
 
 				environment.put(initParameterName,
