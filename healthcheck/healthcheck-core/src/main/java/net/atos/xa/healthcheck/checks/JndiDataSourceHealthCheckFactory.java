@@ -1,4 +1,4 @@
-package net.atos.xa.healthcheck.was;
+package net.atos.xa.healthcheck.checks;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -7,12 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
-import net.atos.xa.healthcheck.checks.DatabaseCheck;
 import net.atos.xa.healthcheck.spi.HealthCheckFactory;
 
 import org.slf4j.Logger;
@@ -23,29 +20,29 @@ import com.yammer.metrics.core.HealthCheck;
 /**
  * 
  * <p>
- * Implementation of {@link HealthCheckFactory} for checking IBM WebSphere
- * datasources datasources This implementation requires the following
- * environmment variables:
+ * Implementation of {@link HealthCheckFactory} for checking JNDI datasources
+ * datasources This implementation requires the following environmment
+ * variables:
  * <ul>
- * <li>wasCheck.jdbcDatasources : a list of JNDI names of the datasource you
+ * <li>jndiCheck.jdbcDatasources : a list of JNDI names of the datasource you
  * want to check</li>
- * <li>wasCheck.jdbcTimeout : validation query timeout in seconds (if timeout is
- * exceeded, the check fails)</li>
+ * <li>jndiCheck.jdbcTimeout : validation query timeout in seconds (if timeout
+ * is exceeded, the check fails)</li>
  * </ul>
  * 
  * if you use healthcheck servlet, this environment variables are set up in the
  * servlet init parameter
  * </p>
  */
-public class DatasourceHealthCheckFactory implements HealthCheckFactory {
+public class JndiDataSourceHealthCheckFactory implements HealthCheckFactory {
 
 	/** the logger */
 	private static Logger log = LoggerFactory
-			.getLogger(DatasourceHealthCheckFactory.class.getName());
+			.getLogger(JndiDataSourceHealthCheckFactory.class.getName());
 
-	private static final String JDBC_DATASOURCE_LIST_KEY = "wasCheck.jdbcDatasources";
+	private static final String JDBC_DATASOURCE_LIST_KEY = "jndiCheck.jdbcDatasources";
 
-	private static final String JDBC_QUERY_TIMEOUT = "wasCheck.jdbcQueryTimeout";
+	private static final String JDBC_QUERY_TIMEOUT = "jndiCheck.jdbcQueryTimeout";
 
 	/**
 	 * @param environment
@@ -107,8 +104,8 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 						healthchecks = new ArrayList<HealthCheck>();
 					}
 
-					HealthCheck check = getHealthCheck(context, jndiName,
-							queryTimeout);
+					HealthCheck check = new JndiDataSourceCheck(context,
+							jndiName, queryTimeout);
 
 					if (check != null) {
 						healthchecks.add(check);
@@ -120,23 +117,6 @@ public class DatasourceHealthCheckFactory implements HealthCheckFactory {
 		}
 
 		return healthchecks;
-	}
-
-	private HealthCheck getHealthCheck(Context context, String jndi,
-			int queryTimeout) {
-
-		log.debug("[HealthCheck] create database check for jndi name {}", jndi);
-
-		try {
-			DataSource ds = (DataSource) context.lookup(jndi);
-
-			return new DatabaseCheck(jndi, ds, null, null, queryTimeout);
-
-		} catch (NamingException e) {
-			log.warn("[HealthCheck] the JNDI name " + jndi + " cannot be found");
-			return new DatabaseCheck(jndi, null, null, null, queryTimeout);
-		}
-
 	}
 
 	private int getTimeout(Map<String, String> environment, String key) {
