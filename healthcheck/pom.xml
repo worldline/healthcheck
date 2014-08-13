@@ -3,23 +3,15 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.kazansource</groupId>
-		<artifactId>kazan-parent</artifactId>
-		<version>2</version>
-	</parent>
-
-
 	<groupId>net.atos.xa.healthcheck</groupId>
 	<artifactId>healthcheck-parent</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<packaging>pom</packaging>
 	<name>healthcheck</name>
 
 	<modules>
 		<module>healthcheck-core</module>
 		<module>healthcheck-openejb</module>
-		<module>healthcheck-was</module>
 		<module>healthcheck-servlet</module>
 	</modules>
 
@@ -27,8 +19,7 @@
 		<developer>
 			<name>Jonathan Macke</name>
 			<email>jonathan.macke@atos.net</email>
-			<organization>Atos Worldline GPS Technical 
-				Direction Software Architecture</organization>
+			<organization>Worldline</organization>
 		</developer>
 	</developers>
 
@@ -38,8 +29,6 @@
 		application performs to verify that a specific component or 
 		responsibility is performing correctly.
 	</description>
-
-	<url>http://xa.atosworldline.com/xwiki/bin/view/XaForProduction/Healthcheck</url>
 
 	<dependencies>
 
@@ -103,8 +92,8 @@
 				<version>${mysql.version}</version>
 				<scope>test</scope>
 			</dependency>
-			
-			
+
+
 			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>ojdbc6</artifactId>
@@ -116,6 +105,12 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<repositories>
+		<repository>
+			<id>codelds</id>
+			<url>https://code.lds.org/nexus/content/groups/main-repo</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -142,28 +137,6 @@
 
 		</plugins>
 	</build>
-
-	<reporting />
-
-	<repositories>
-
-		<repository>
-			<!-- This repository is mapped to a Maven2 proxy. This one gives access 
-				to O&D and common Maven2 repositories -->
-			<id>proxiedRepositories</id>
-			<name>OD and common proxied repositories</name>
-			<url>http://repository.atosworldline.com/nexus/content/groups/public</url>
-		</repository>
-
-		<repository>
-			<!-- This repository is mapped to a Maven2 proxy. This one gives access 
-				to O&D and common Maven2 repositories -->
-			<id>kazanRepo</id>
-			<name>Kazan public repository</name>
-			<url>http://kazan.priv.atos.fr/nexus/content/repositories/public/</url>
-		</repository>
-
-	</repositories>
 
 
 	<properties>
